@@ -1,3 +1,4 @@
+import googlelogo from '@/assets/images/google.png';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 import { Form, Head } from '@inertiajs/react';
@@ -12,11 +13,9 @@ import AuthLayout from '@/layouts/auth-layout';
 
 export default function Register() {
     return (
-        <AuthLayout
-            title="Create an account"
-            description="Enter your details below to create your account"
-        >
+        <AuthLayout>
             <Head title="Register" />
+
             <Form
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
@@ -25,7 +24,7 @@ export default function Register() {
             >
                 {({ processing, errors }) => (
                     <>
-                        <div className="grid gap-6">
+                        <div className="grid gap-5">
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Name</Label>
                                 <Input
@@ -74,7 +73,7 @@ export default function Register() {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
-                                    Confirm password
+                                    Confirm Password
                                 </Label>
                                 <Input
                                     id="password_confirmation"
@@ -90,22 +89,50 @@ export default function Register() {
                                 />
                             </div>
 
+                            <div className="text-start text-sm text-muted-foreground">
+                                Already have an account?{' '}
+                                <TextLink
+                                    className="hover:text-[#084896]"
+                                    href={login()}
+                                    tabIndex={6}
+                                >
+                                    Log in
+                                </TextLink>
+                            </div>
+
                             <Button
+                                size="lg"
                                 type="submit"
-                                className="mt-2 w-full"
+                                className="w-full cursor-pointer"
+                                variant="darkblue"
                                 tabIndex={5}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
                                 Create account
                             </Button>
-                        </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
-                                Log in
-                            </TextLink>
+                            <div className="flex items-center">
+                                <hr className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+                                <span className="mx-2 text-sm text-gray-500 dark:text-gray-400">
+                                    or continue with
+                                </span>
+                                <hr className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+                            </div>
+
+                            <Button
+                                size="lg"
+                                variant="outline"
+                                className="flex w-full cursor-pointer items-center justify-center gap-2"
+                                type="button"
+                            >
+                                <img
+                                    src={googlelogo}
+                                    alt="Google"
+                                    className="h-5 w-5"
+                                />
+                                Google
+                            </Button>
                         </div>
                     </>
                 )}
