@@ -24,16 +24,13 @@ export default function Login({
     canRegister,
 }: LoginProps) {
     return (
-        <AuthLayout
-            title="Mattaginayon a pagsapulan, ditoy workIN mo a masarakan. Start your job search journey!"
-            description="Enter your email and password below to log in"
-        >
+        <AuthLayout>
             <Head title="Log in" />
 
             <Form
                 {...store.form()}
                 resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-4"
             >
                 {({ processing, errors }) => (
                     <>
@@ -104,7 +101,7 @@ export default function Login({
                             <div className="text-sm text-muted-foreground">
                                 Don't have an account yet?{' '}
                                 <TextLink
-                                    className="text-[#084896]"
+                                    className="hover:text-[#084896]"
                                     href={register()}
                                     tabIndex={5}
                                 >
@@ -113,7 +110,7 @@ export default function Login({
                             </div>
                         )}
 
-                        <div className="my-4 flex items-center">
+                        <div className="my-1 flex items-center">
                             <hr className="flex-grow border-t border-gray-300 dark:border-gray-600" />
                             <span className="mx-2 text-sm text-gray-500 dark:text-gray-400">
                                 or continue with
@@ -121,24 +118,20 @@ export default function Login({
                             <hr className="flex-grow border-t border-gray-300 dark:border-gray-600" />
                         </div>
 
-                        <div className="items-center">
-                            <button>
+                        <div className="flex justify-center">
+                            <Button
+                                size="lg"
+                                variant="outline"
+                                className="mt-2 flex w-full items-center justify-center gap-2"
+                                type="button"
+                            >
                                 <img
-                                    className="size-5"
                                     src={googlelogo}
-                                    alt=""
+                                    alt="Google"
+                                    className="h-5 w-5"
                                 />
-                            </button>
-                        </div>
-
-                        <div>
-                            <h3>Privacy policy</h3>
-                        </div>
-                        <div>
-                            <h3>How it works</h3>
-                        </div>
-                        <div>
-                            <h3>About us</h3>
+                                <span>Continue with Google</span>
+                            </Button>
                         </div>
                     </>
                 )}
