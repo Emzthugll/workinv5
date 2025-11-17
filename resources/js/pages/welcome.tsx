@@ -66,7 +66,10 @@ export default function Welcome({
 
                     <div className="mt-8 flex flex-col items-center gap-2 text-sm text-white/90">
                         <div className="flex gap-6">
-                            <Link href="#" className="hover:underline">
+                            <Link
+                                href="/privacy-policy"
+                                className="hover:underline"
+                            >
                                 Privacy Policy
                             </Link>
                             <Link href="#" className="hover:underline">
