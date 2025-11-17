@@ -1,6 +1,6 @@
 import Background from '@/assets/images/background.jpg';
-import logo from '@/assets/images/work.png';
-import { dashboard, login, register } from '@/routes';
+import logo from '@/assets/images/workin.webp';
+import { login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
@@ -21,51 +21,72 @@ export default function Welcome({
                 />
             </Head>
 
-            {/* Disable ALL scrolling */}
-            <div className="flex h-screen w-screen overflow-hidden bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <nav className="fixed top-0 left-0 z-30 flex w-full items-center justify-end gap-4 bg-blue-900/95 px-6 py-3 backdrop-blur-sm">
-                    {auth.user ? (
+            <div className="relative flex h-screen w-screen overflow-hidden">
+                <img
+                    src={Background}
+                    alt="Background"
+                    className="absolute inset-0 h-full w-full object-cover"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/50 to-red-500/50 backdrop-blur-[3px]" />
+
+                <main className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6 text-center text-white">
+                    <img src={logo} alt="Logo" className="mb-6 h-25 w-auto" />
+
+                    <div className="flex w-full max-w-xs flex-col items-center gap-4">
+                        <h1 className="text-sm leading-snug font-semibold">
+                            Mattaginayon a pagsapulan, ditoy workIN mo a
+                            masarakan. Start your job search journey!
+                        </h1>
+
                         <Link
-                            href={dashboard()}
-                            className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] dark:border-[#3E3E3A] dark:text-[#EDEDEC]"
+                            href={login()}
+                            className="mt-4 w-full rounded-lg bg-[#084896] py-3 font-semibold text-white shadow-md transition hover:opacity-90"
                         >
-                            Dashboard
+                            Log in
                         </Link>
-                    ) : (
-                        <>
+
+                        <div className="my-1 flex w-full items-center">
+                            <hr className="flex-grow border-white/40" />
+                            <span className="px-4 text-sm text-white/90">
+                                or
+                            </span>
+                            <hr className="flex-grow border-white/40" />
+                        </div>
+
+                        {canRegister && (
                             <Link
-                                href={login()}
-                                className="inline-block rounded-lg border-[#d1d1d1] bg-white px-5 py-2 text-sm font-medium text-[#1b1b18] transition-all duration-200 hover:scale-105 dark:border-[#3E3E3A] dark:bg-[#1a1a1a] dark:text-[#EDEDEC]"
+                                href={register()}
+                                className="w-full rounded-lg bg-[#084896] py-3 font-semibold text-white shadow-md transition hover:opacity-90"
                             >
-                                Log in
+                                Create Account
                             </Link>
+                        )}
+                    </div>
 
-                            {canRegister && (
-                                <Link
-                                    href={register()}
-                                    className="inline-block rounded-lg border-[#19140035] bg-[#1b1b18] px-5 py-2 text-sm font-medium text-white transition-all duration-200 hover:scale-105 dark:border-[#62605b] dark:bg-[#EDEDEC] dark:text-[#1b1b18]"
-                                >
-                                    Register
-                                </Link>
-                            )}
-                        </>
-                    )}
-                </nav>
+                    <div className="mt-8 flex flex-col items-center gap-2 text-sm text-white/90">
+                        <div className="flex gap-6">
+                            <Link href="#" className="hover:underline">
+                                Privacy Policy
+                            </Link>
+                            <Link href="#" className="hover:underline">
+                                How It Works
+                            </Link>
+                            <Link href="#" className="hover:underline">
+                                About Us
+                            </Link>
+                        </div>
 
-                <div className="relative flex h-full w-full pt-16">
-                    <img
-                        src={Background}
-                        alt="Background"
-                        className="absolute inset-0 h-full w-full object-cover"
-                    />
-
-                    <div className="absolute inset-0 bg-gradient-to-l from-blue-600/60 to-red-600/60" />
-
-                    {/* Content */}
-                    <main className="relative z-10 flex h-full w-full items-start justify-start">
-                        <img src={logo} alt="" />
-                    </main>
-                </div>
+                        <div className="mt-4 text-center text-xs leading-relaxed text-white/80">
+                            Powered by the Information Technology Office
+                            <br />
+                            Official website of the Provincial Government of
+                            Ilocos Norte.
+                            <br />
+                            All rights reserved.
+                        </div>
+                    </div>
+                </main>
             </div>
         </>
     );
