@@ -122,7 +122,7 @@ export default function Login({
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="mt-2 flex w-full items-center justify-center gap-2"
+                                className="mt-2 flex w-full items-center justify-center gap-2 cursor-pointer"
                                 type="button"
                             >
                                 <img
