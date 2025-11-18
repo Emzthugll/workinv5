@@ -44,6 +44,14 @@ const PrivacySidebar: React.FC = () => {
                     </button>
                 </div>
 
+                <Link
+                    href="/"
+                    className="block py-1 text-right text-sm font-semibold text-[#084896] hover:underline"
+                    onClick={() => setIsOpen(false)}
+                >
+                    ← Back
+                </Link>
+
                 {/* Links */}
                 <div className="mt-18 flex flex-1 flex-col">
                     <ul className="flex w-full flex-col space-y-1">
@@ -55,7 +63,6 @@ const PrivacySidebar: React.FC = () => {
                                     className="relative flex w-full justify-end"
                                 >
                                     <div className="flex items-center">
-                                        
                                         {isActive && (
                                             <span className="mr-1 h-[70%] w-[3px] rounded bg-[#084896]" />
                                         )}
@@ -108,7 +115,6 @@ const PrivacySidebar: React.FC = () => {
                 </footer>
             </aside>
 
-            
             {isOpen && (
                 <div
                     className="fixed inset-0 z-40 bg-[#084896]/30 backdrop-blur-md sm:hidden"
