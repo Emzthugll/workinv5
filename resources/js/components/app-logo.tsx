@@ -1,16 +1,34 @@
+import { cn } from '@/lib/utils';
 import AppLogoIcon from './app-logo-icon';
 
-export default function AppLogo() {
+interface AppLogoProps {
+    size?: string; // overall container size
+    iconSize?: string; // size of the inner icon
+    rounded?: string; // border radius
+    className?: string; // extra custom classes
+}
+
+export default function AppLogo({
+    size = 'h-10 w-10', // default for dashboard
+    iconSize = 'h-5 w-5', // default icon size
+    rounded = 'rounded-lg', // default border radius
+    className = '',
+}: AppLogoProps) {
     return (
-        <>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
-            </div>
-            <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-tight font-semibold">
-                    Laravel Starter Kit
-                </span>
-            </div>
-        </>
+        <div
+            className={cn(
+                'flex items-center justify-center  text-sidebar-primary-foreground',
+                size,
+                rounded,
+                className,
+            )}
+        >
+            <AppLogoIcon
+                className={cn(
+                    iconSize,
+                    'fill-current text-white ',
+                )}
+            />
+        </div>
     );
 }
