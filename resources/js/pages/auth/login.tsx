@@ -30,11 +30,10 @@ export default function Login({
             <Form
                 {...store.form()}
                 resetOnSuccess={['password']}
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-3"
             >
                 {({ processing, errors }) => (
                     <>
-                        
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email address</Label>
                             <Input
@@ -50,7 +49,6 @@ export default function Login({
                             <InputError message={errors.email} />
                         </div>
 
-                        
                         <div className="grid gap-2">
                             <div className="flex items-center">
                                 <Label htmlFor="password">Password</Label>
@@ -76,7 +74,6 @@ export default function Login({
                             <InputError message={errors.password} />
                         </div>
 
-                        
                         <div className="flex items-center space-x-3">
                             <Checkbox
                                 id="remember"
@@ -86,7 +83,6 @@ export default function Login({
                             <Label htmlFor="remember">Remember me</Label>
                         </div>
 
-                        
                         <Button
                             size="lg"
                             type="submit"
@@ -99,7 +95,6 @@ export default function Login({
                             Log in
                         </Button>
 
-                        
                         {canRegister && (
                             <div className="text-sm text-muted-foreground">
                                 Don't have an account yet?{' '}
@@ -113,7 +108,6 @@ export default function Login({
                             </div>
                         )}
 
-                        
                         <div className="my-1 flex items-center">
                             <hr className="flex-grow border-t border-gray-300 dark:border-gray-600" />
                             <span className="mx-2 text-sm text-gray-500 dark:text-gray-400">
@@ -122,29 +116,29 @@ export default function Login({
                             <hr className="flex-grow border-t border-gray-300 dark:border-gray-600" />
                         </div>
 
-                        
                         <div className="flex justify-center">
-                            <button
+                            <Button
+                                variant="gray"
+                                size="lg"
                                 type="button"
-                                className="btn btn-outline mt-2 flex w-full items-center justify-center gap-2"
-                                onClick={() => {
-                                    // Redirect directly to Google OAuth
-                                    window.location.href = '/auth/google';
-                                }}
+                                onClick={() =>
+                                    (window.location.href =
+                                        '/auth/google/redirect')
+                                }
+                                className="mt-4 w-full cursor-pointer"
                             >
                                 <img
                                     src={googlelogo}
                                     alt="Google"
                                     className="h-5 w-5"
                                 />
-                                Continue with Google
-                            </button>
+                                <span>Continue with Google</span>
+                            </Button>
                         </div>
                     </>
                 )}
             </Form>
 
-            
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
                     {status}
