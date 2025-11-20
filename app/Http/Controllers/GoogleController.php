@@ -3,34 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Exception;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Spatie\Permission\Models\Role;
+use Exception;
 
 class GoogleController extends Controller
 {
-    // Redirect to Google OAuth
     public function redirect()
     {
         return Socialite::driver('google')->redirect();
     }
 
-    // Handle Google OAuth callback
     public function callback()
     {
         try {
-            
-            $googleUser = Socialite::driver('google')
-                ->user();
-            
-            Log::info('Google OAuth Success', [
-                'google_id' => $googleUser->id,
-                'email' => $googleUser->email,
-                'name' => $googleUser->name
-            ]);
+            /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
+            $driver = Socialite::driver('google');
+            $googleUser = $driver->stateless()->user();
 
-            // Find existing user by google_id or email
+            // Find existing user
             $user = User::where('google_id', $googleUser->id)
                         ->orWhere('email', $googleUser->email)
                         ->first();
@@ -42,56 +36,50 @@ class GoogleController extends Controller
                     'email' => $googleUser->email,
                     'google_id' => $googleUser->id,
                     'email_verified_at' => now(),
-                    'password' => bcrypt('JesusChrist'),
+                    'password' => bcrypt(Str::random(16)),
                 ]);
-                
-                Log::info('New user created', ['user_id' => $user->id]);
+
+                // Assign default role (applicant)
+                $role = Role::firstOrCreate(['name' => 'applicant', 'guard_name' => 'web']);
+                $user->assignRole($role);
+
             } else {
-                // Existing user: update google_id & verified email
+                // Update existing user
                 if (!$user->google_id) {
                     $user->google_id = $googleUser->id;
                 }
-
                 if (!$user->email_verified_at) {
                     $user->email_verified_at = now();
                 }
-
                 $user->save();
-                
-                Log::info('Existing user updated', ['user_id' => $user->id]);
+
+                // Assign default role if none
+                if (!$user->roles()->exists()) {
+                    $role = Role::firstOrCreate(['name' => 'applicant', 'guard_name' => 'web']);
+                    $user->assignRole($role);
+                }
             }
 
             // Login the user
             Auth::login($user, true);
-            
-            // Verify authentication
-            if (Auth::check()) {
-                Log::info('User authenticated successfully', ['user_id' => Auth::id()]);
-                
-                // Regenerate session to prevent fixation attacks
-                request()->session()->regenerate();
-                
-                return redirect()->intended('/dashboard');
-            } else {
-                Log::error('Authentication failed after login attempt');
-                return redirect('/login')->with('error', 'Authentication failed. Please try again.');
-            }
+            request()->session()->regenerate();
+
+            // Redirect based on role
+            $roleName = $user->getRoleNames()->first();
+
+            return match($roleName) {
+                'administrator' => redirect('/admin/dashboard'),
+                'employer' => redirect('/employer/dashboard'),
+                'peso' => redirect('/peso/dashboard'),
+                'applicant' => redirect('/applicant/dashboard'),
+                default => redirect('/dashboard'),
+            };
 
         } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
-            Log::error('Invalid State Exception - Session/Cookie Issue', [
-                'message' => $e->getMessage(),
-                'session_id' => session()->getId(),
-                'cookies' => request()->cookies->all()
-            ]);
-            
-            return redirect('/login')->with('error', 'Session expired. Please try logging in again.');
-            
+            Log::error('Invalid State Exception', ['message' => $e->getMessage()]);
+            return redirect('/login')->with('error', 'Session expired. Please try again.');
         } catch (Exception $e) {
-            Log::error('Google OAuth Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
+            Log::error('Google OAuth Error', ['message' => $e->getMessage()]);
             return redirect('/login')->with('error', 'Google login failed: ' . $e->getMessage());
         }
     }
