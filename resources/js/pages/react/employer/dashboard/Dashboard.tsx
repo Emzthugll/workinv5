@@ -1,4 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
+import EmployerSidebarLayout from '@/layouts/react/employer/employer-sidebar-layout';
 import { usePage } from '@inertiajs/react';
 
 // Define the user type
@@ -20,7 +20,7 @@ export default function Dashboard() {
     const { auth } = usePage<PageProps>().props;
 
     return (
-        <AppLayout>
+        <EmployerSidebarLayout>
             <div className="flex h-full flex-col items-center justify-center">
                 <h1 className="mb-4 text-3xl font-bold">
                     Welcome, {auth.user.name}!
@@ -32,6 +32,6 @@ export default function Dashboard() {
                     </span>
                 </p>
             </div>
-        </AppLayout>
+        </EmployerSidebarLayout>
     );
 }
