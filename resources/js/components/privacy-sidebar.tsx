@@ -87,24 +87,20 @@ const PrivacySidebar: React.FC = () => {
 
                 {/* Footer */}
                 <footer className="mt-4 text-center text-gray-500">
-                    <div className="mb-2 flex flex-wrap justify-center gap-4">
+                    <div className="mb-2 flex flex-wrap items-center justify-center gap-4">
                         <img
                             src={ProvincialLogo}
                             alt="Logo 1"
-                            className="h-10 w-auto sm:h-12 md:h-15"
+                            className="h-10 w-auto sm:h-12 md:h-20"
                         />
                         <img
                             src={BagongPilipinasLogo}
                             alt="Logo 2"
-                            className="h-12 w-auto sm:h-16 md:h-20"
-                        />
-                        <img
-                            src={PesoLogo}
-                            alt="Logo 3"
-                            className="h-10 w-auto sm:h-12 md:h-15"
+                            className="h-12 w-auto sm:h-16 md:h-27"
                         />
                     </div>
-                    <div className="space-y-1 text-[10px]">
+
+                    <div className="space-y-1 text-sm">
                         <p>Powered by the Information Technology Office</p>
                         <p>
                             Official website of the Provincial Government of
