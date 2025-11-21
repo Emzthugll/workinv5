@@ -26,7 +26,7 @@ export default function AppHeaderLayout({
                 rightItems={rightItems} 
             />
             <AppContent>{children}</AppContent>
-            <Footer/>
+            <Footer />
         </AppShell>
     );
 }

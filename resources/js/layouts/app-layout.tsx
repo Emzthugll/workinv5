@@ -6,6 +6,7 @@ interface AppLayoutProps {
     title?: string;
     children: ReactNode;
     breadcrumbs?: BreadcrumbItem[];
+    
 }
 
 export default ({ children, title, breadcrumbs, ...props }: AppLayoutProps) => (
