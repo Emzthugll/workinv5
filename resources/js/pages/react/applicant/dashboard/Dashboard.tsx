@@ -1,4 +1,4 @@
-import Footer from '@/components/footer';
+
 import AppLayout from '@/layouts/app/app-header-layout';
 import RecruitmentList from '@/pages/react/applicant/dashboard/recruitment/RecruitmentList';
 import { usePage } from '@inertiajs/react';
