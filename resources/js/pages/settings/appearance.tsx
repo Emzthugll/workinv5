@@ -4,7 +4,7 @@ import AppearanceTabs from '@/components/appearance-tabs';
 import HeadingSmall from '@/components/heading-small';
 import { type BreadcrumbItem } from '@/types';
 
-import AppLayout from '@/layouts/app-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit as editAppearance } from '@/routes/appearance';
 
@@ -15,9 +15,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const applicantNav = [
+    { title: 'Home', href: '/applicant/dashboard' },
+    { title: 'Job Search', href: '/applicant/jobs' },
+    { title: 'Companies', href: '/applicant/companies' },
+];
+
 export default function Appearance() {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppHeaderLayout rightItems={applicantNav}>
             <Head title="Appearance settings" />
 
             <SettingsLayout>
@@ -29,6 +35,6 @@ export default function Appearance() {
                     <AppearanceTabs />
                 </div>
             </SettingsLayout>
-        </AppLayout>
+        </AppHeaderLayout>
     );
 }

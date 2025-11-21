@@ -10,16 +10,11 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Profile settings',
-        href: edit().url,
-    },
-];
+
 
 export default function Profile({
     mustVerifyEmail,
@@ -30,8 +25,14 @@ export default function Profile({
 }) {
     const { auth } = usePage<SharedData>().props;
 
+    const applicantNav = [
+        { title: 'Home', href: '/applicant/dashboard' },
+        { title: 'Job Search', href: '/applicant/jobs' },
+        { title: 'Companies', href: '/applicant/companies' },
+    ];
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppHeaderLayout rightItems={applicantNav}>
             <Head title="Profile settings" />
 
             <SettingsLayout>
@@ -143,6 +144,6 @@ export default function Profile({
 
                 <DeleteUser />
             </SettingsLayout>
-        </AppLayout>
+        </AppHeaderLayout>
     );
 }

@@ -1,6 +1,6 @@
 import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 import InputError from '@/components/input-error';
-import AppLayout from '@/layouts/app-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
@@ -24,8 +24,14 @@ export default function Password() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
+    const applicantNav = [
+        { title: 'Home', href: '/applicant/dashboard' },
+        { title: 'Job Search', href: '/applicant/jobs' },
+        { title: 'Companies', href: '/applicant/companies' },
+    ];
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppHeaderLayout rightItems={applicantNav}>
             <Head title="Password settings" />
 
             <SettingsLayout>
@@ -141,6 +147,6 @@ export default function Password() {
                     </Form>
                 </div>
             </SettingsLayout>
-        </AppLayout>
+        </AppHeaderLayout>
     );
 }
