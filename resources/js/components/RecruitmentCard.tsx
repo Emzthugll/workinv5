@@ -46,7 +46,7 @@ const RecruitmentCard: React.FC<RecruitmentCardProps> = ({
     const eventPassed = new Date(end) < new Date();
 
     return (
-        <div className="flex w-full flex-col justify-between rounded-xl border p-3 shadow-sm sm:p-4">
+        <div className="flex w-full  flex-col  justify-between rounded-xl border p-3 shadow-sm sm:p-4">
             {/* Top Section */}
             <div
                 className={`mb-4 flex w-full flex-col gap-3 rounded-xl border p-3 sm:p-4 ${
@@ -68,16 +68,13 @@ const RecruitmentCard: React.FC<RecruitmentCardProps> = ({
                 </p>
 
                 {/* Companies */}
-                <div className="flex flex-wrap justify-center gap-1.5">
+                <div className="flex text-sm text-gray-400 flex-wrap justify-center ">
                     {companies.length > 0 ? (
                         companies.map((c) => (
                             <span
                                 key={c.id}
-                                className={`truncate rounded-full px-2 py-1 text-xs font-medium sm:text-sm ${
-                                    eventPassed
-                                        ? 'bg-gray-400 text-[#084896]'
-                                        : 'bg-green-300 text-[#084896]'
-                                }`}
+                                className='truncate   text-xs  sm:text-xs'
+                                   
                             >
                                 {c.name}
                             </span>
@@ -92,7 +89,7 @@ const RecruitmentCard: React.FC<RecruitmentCardProps> = ({
                 {/* Date/Time Section */}
                 <div
                     className={`mt-4 flex flex-col items-center gap-3 rounded-xl p-3 text-xs text-[#084896] sm:flex-row sm:justify-center sm:gap-0 ${
-                        eventPassed ? 'bg-gray-300' : 'bg-green-300'
+                        eventPassed ? 'bg-gray-300' : 'bg-green-200'
                     }`}
                 >
                     <div className="flex flex-col items-center text-center">
@@ -116,7 +113,7 @@ const RecruitmentCard: React.FC<RecruitmentCardProps> = ({
                     className={`group relative flex h-10 items-center overflow-hidden rounded-xl border px-4 py-2 text-sm font-medium transition-all sm:h-11 sm:text-base ${
                         eventPassed
                             ? 'cursor-not-allowed bg-white text-black'
-                            : 'cursor-pointer bg-white text-black hover:shadow-md active:scale-95'
+                            : 'cursor-pointer bg-white text-black  active:scale-95'
                     }`}
                     onClick={() => {
                         if (!eventPassed) window.open(registerLink, '_blank');
@@ -129,7 +126,7 @@ const RecruitmentCard: React.FC<RecruitmentCardProps> = ({
                     <div
                         className={`absolute right-1 flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300 sm:h-9 sm:w-9 ${
                             eventPassed
-                                ? 'bg-gray-400'
+                                ? 'bg-gray-400 group-hover:w-[calc(30%-0.5rem)]'
                                 : 'bg-green-400 group-hover:w-[calc(100%-0.5rem)]'
                         }`}
                     >
