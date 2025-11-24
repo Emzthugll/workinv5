@@ -1,37 +1,46 @@
-import AppLayout from '@/layouts/app-layout';
-import { usePage } from '@inertiajs/react';
-
-// Define the user type
-interface AuthUser {
-    id: number;
-    name: string;
-    email: string;
-    roles: string[];
-}
-
-interface PageProps {
-    auth: {
-        user: AuthUser;
-    };
-    [key: string]: any;
-}
+import PesoSidebarLayout from '@/layouts/react/peso/peso-sidebar-layout';
+import { Briefcase, User, Users } from 'lucide-react';
 
 export default function Dashboard() {
-    const { auth } = usePage<PageProps>().props;
+    const BreadcrumbItems = [{ title: 'Dashboard', href: '#' }];
+
+    const stats = [
+        { title: 'Login Today', value: 25, icon: User },
+        { title: 'Total Accounts', value: 150, icon: Users },
+        { title: 'Job Vacancy', value: 12, icon: Briefcase },
+    ];
 
     return (
-        <AppLayout>
-            <div className="flex h-full flex-col items-center justify-center">
-                <h1 className="mb-4 text-3xl font-bold">
-                    Welcome, {auth.user.name}!
-                </h1>
-                <p className="text-xl text-gray-700">
-                    You are logged in as:{' '}
-                    <span className="font-semibold">
-                        {auth.user.roles.join(', ')}
-                    </span>
-                </p>
+        <PesoSidebarLayout breadcrumbs={BreadcrumbItems}>
+            <div className="space-y-4 p-4">
+                <div className="flex gap-4">
+                    {stats.map((stat) => {
+                        const Icon = stat.icon;
+                        return (
+                            <div
+                                key={stat.title}
+                                className="flex flex-1 items-center justify-between rounded-lg bg-white p-4 shadow-md"
+                            >
+                                <div className="flex flex-col">
+                                    <span className="text-sm text-gray-500">
+                                        {stat.title}
+                                    </span>
+                                    <span className="text-2xl font-bold text-gray-900">
+                                        {stat.value}
+                                    </span>
+                                </div>
+
+                                <div className="text-gray-300">
+                                    <Icon size={36} />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Rest of dashboard content */}
+                <div className="mt-6">{/* other dashboard sections */}</div>
             </div>
-        </AppLayout>
+        </PesoSidebarLayout>
     );
 }
