@@ -5,9 +5,6 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\GoogleController;
-
-
-//applicant
 use App\Http\Controllers\RecruitmentController;
 
 // -----------------------------
@@ -18,8 +15,6 @@ Route::get('/', function () {
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
-
-
 
 // -----------------------------
 // Google Login
@@ -33,12 +28,9 @@ Route::prefix('auth/google')->group(function () {
 // Role-Based Dashboard Redirect
 // -----------------------------
 Route::middleware(['auth'])->get('/dashboard', function (Request $request) {
-    $user = $request->user();
+    $role = $request->user()->getRoleNames()->first();
 
-    // Make sure user has the HasRoles trait
-    $role = $user->getRoleNames()->first() ?? null;
-
-    return match($role) {
+    return match ($role) {
         'administrator' => redirect()->route('admin.dashboard'),
         'employer' => redirect()->route('employer.dashboard'),
         'applicant' => redirect()->route('applicant.dashboard'),
@@ -53,17 +45,17 @@ Route::middleware(['auth'])->get('/dashboard', function (Request $request) {
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::inertia('/admin/dashboard', 'react/administrator/dashboard/Dashboard')
         ->name('admin.dashboard');
-    // Add more admin routes here
 });
 
 // -----------------------------
 // Applicant Dashboard
 // -----------------------------
 Route::middleware(['auth', 'role:applicant'])->group(function () {
-    Route::get('/applicant/dashboard', [RecruitmentController::class, 'dashboard']);
+    Route::get('/applicant/dashboard', [RecruitmentController::class, 'dashboard'])
+        ->name('applicant.dashboard');
+
     Route::get('/applicant/recruitment', [RecruitmentController::class, 'index'])
-        ->name('applicant.recruitment');    
-    
+        ->name('applicant.recruitment');
 });
 
 // -----------------------------
@@ -72,23 +64,40 @@ Route::middleware(['auth', 'role:applicant'])->group(function () {
 Route::middleware(['auth', 'role:employer'])->group(function () {
     Route::inertia('/employer/dashboard', 'react/employer/dashboard/Dashboard')
         ->name('employer.dashboard');
-    // Add more employer routes here
 });
 
 // -----------------------------
 // PESO Dashboard
 // -----------------------------
-Route::middleware(['auth', 'role:peso'])->group(function () {
-    Route::inertia('/peso/dashboard', 'react/peso/dashboard/Dashboard')
-        ->name('peso.dashboard');
-    // Add more peso routes here
+Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(function () {
+
+    Route::inertia('/dashboard', 'react/peso/dashboard/Dashboard')
+        ->name('dashboard');
+
+    Route::inertia('/job-posting', 'react/peso/job-posting/Index')
+        ->name('job.index');
+
+    Route::inertia('/companies', 'react/peso/companies/Index')
+        ->name('companies.index');
+
+    Route::inertia('/recruitment-activity', 'react/peso/recruitment/Index')
+        ->name('recruitment.index');
+
+    Route::inertia('/mat-report', 'react/peso/mat/Index')
+        ->name('mat.index');
+
+    Route::inertia('/manage-users', 'react/peso/users/Index')
+        ->name('users.index');
 });
+
+
+
 
 // -----------------------------
 // Additional Settings
 // -----------------------------
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
 
-Route::get('/privacy-policy', fn() => Inertia::render('policies/privacy'))->name('privacy-policy');
-Route::get('/how-it-works', fn() => Inertia::render('policies/how'))->name('how-it-works');
-Route::get('/about-us', fn() => Inertia::render('policies/about'))->name('about');
+Route::get('/privacy-policy', fn () => Inertia::render('policies/privacy'))->name('privacy-policy');
+Route::get('/how-it-works', fn () => Inertia::render('policies/how'))->name('how-it-works');
+Route::get('/about-us', fn () => Inertia::render('policies/about'))->name('about');
