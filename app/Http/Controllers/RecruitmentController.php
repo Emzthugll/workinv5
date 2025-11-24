@@ -19,7 +19,7 @@ class RecruitmentController extends Controller
 
 public function dashboard()
 {
-    $activities = RecruitmentActivity::with('companies') // <-- add this
+    $activities = RecruitmentActivity::with('companies') 
         ->orderBy('start')
         ->get();
 
