@@ -1,25 +1,38 @@
+'use client';
+
+import { ChartLineDay } from '@/components/react/peso/components/dashboard/ChartLineDay';
+import { ChartLineMonth } from '@/components/react/peso/components/dashboard/ChartLineMonth';
+import { ChartLineYear } from '@/components/react/peso/components/dashboard/ChartLineYear';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PesoSidebarLayout from '@/layouts/react/peso/peso-sidebar-layout';
-import { Briefcase, User, Users } from 'lucide-react';
+import { ActivityIcon, Briefcase, Users } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Dashboard() {
-    const BreadcrumbItems = [{ title: 'Dashboard', href: '#' }];
+    const BreadcrumbItems = [
+        { title: 'Dashboard', href: '/peso/dashboard', active: true },
+    ];
 
     const stats = [
-        { title: 'Login Today', value: 25, icon: User },
+        { title: 'Login Today', value: 25, icon: ActivityIcon },
         { title: 'Total Accounts', value: 150, icon: Users },
         { title: 'Job Vacancy', value: 12, icon: Briefcase },
     ];
 
+    const tabs = ['Year', 'Month', 'Day'];
+    const [activeTab, setActiveTab] = useState('Year');
+
     return (
         <PesoSidebarLayout breadcrumbs={BreadcrumbItems}>
-            <div className="space-y-4 p-4">
-                <div className="flex gap-4">
+            <div className="space-y-6 p-4">
+                {/* Top Cards */}
+                <div className="flex flex-col gap-4 md:flex-row">
                     {stats.map((stat) => {
                         const Icon = stat.icon;
                         return (
                             <div
                                 key={stat.title}
-                                className="flex flex-1 items-center justify-between rounded-lg bg-white p-4 shadow-md"
+                                className="flex flex-1 items-center justify-between rounded-lg bg-white p-6 shadow-md"
                             >
                                 <div className="flex flex-col">
                                     <span className="text-sm text-gray-500">
@@ -29,17 +42,46 @@ export default function Dashboard() {
                                         {stat.value}
                                     </span>
                                 </div>
-
-                                <div className="text-gray-300">
-                                    <Icon size={36} />
+                                <div className="text-black">
+                                    <Icon size={25} />
                                 </div>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Rest of dashboard content */}
-                <div className="mt-6">{/* other dashboard sections */}</div>
+                {/* Tabs */}
+                <Tabs
+                    value={activeTab}
+                    onValueChange={setActiveTab}
+                    className="space-y-4"
+                >
+                    <TabsList className="overflow-x-auto">
+                        {tabs.map((tab) => (
+                            <TabsTrigger key={tab} value={tab}>
+                                {tab}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+
+                    <TabsContent value="Year">
+                        <div className="w-full">
+                            <ChartLineYear />
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="Month">
+                        <div className="w-full">
+                            <ChartLineMonth />
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="Day">
+                        <div className="w-full">
+                            <ChartLineDay />
+                        </div>
+                    </TabsContent>
+                </Tabs>
             </div>
         </PesoSidebarLayout>
     );
