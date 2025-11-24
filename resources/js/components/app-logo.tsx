@@ -2,16 +2,16 @@ import { cn } from '@/lib/utils';
 import AppLogoIcon from './app-logo-icon';
 
 interface AppLogoProps {
-    size?: string; // overall container size
-    iconSize?: string; // size of the inner icon
-    rounded?: string; // border radius
-    className?: string; // extra custom classes
+    size?: string; 
+    iconSize?: string; 
+    rounded?: string; 
+    className?: string; 
 }
 
 export default function AppLogo({
-    size = 'h-10 w-10', // default for dashboard
-    iconSize = 'h-5 w-5', // default icon size
-    rounded = 'rounded-lg', // default border radius
+    size = 'h-10 w-10', 
+    iconSize = 'h-5 w-5', 
+    rounded = 'rounded-lg', 
     className = '',
 }: AppLogoProps) {
     return (
