@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -9,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { useState } from 'react';
 import {
     CartesianGrid,
     Line,
@@ -19,47 +19,74 @@ import {
     YAxis,
 } from 'recharts';
 
-const MonthData = [
-    { month: 'January', value: 250 },
-    { month: 'February', value: 300 },
-    { month: 'March', value: 280 },
-    { month: 'April', value: 320 },
-    { month: 'May', value: 320 },
-    { month: 'June', value: 320 },
-    { month: 'July', value: 320 },
-    { month: 'August', value: 320 },
-    { month: 'September', value: 320 },
-    { month: 'October', value: 320 },
-    { month: 'November', value: 320 },
-    { month: 'December', value: 320 },
-];
+interface MonthDataType {
+    month: string;
+    loginToday?: number;
+    totalAccounts?: number;
+    jobVacancy?: number;
+}
 
-export function ChartLineMonth() {
-    const firstYear = 2021;
-    const lastYear = new Date().getFullYear(); 
+interface ChartLineMonthProps {
+    monthlyData: Record<number, MonthDataType[]>;
+    startYear: number;
+    metric: 'loginToday' | 'totalAccounts' | 'jobVacancy';
+}
 
-    const [year, setYear] = useState(lastYear);
+export function ChartLineMonth({
+    monthlyData,
+    startYear,
+    metric,
+}: ChartLineMonthProps) {
+    const firstYear = startYear;
+    const lastYear = new Date().getFullYear();
+    const [currentYear, setCurrentYear] = useState(lastYear);
+
+    const metricLabels: Record<string, string> = {
+        loginToday: 'Logins',
+        totalAccounts: 'New Accounts',
+        jobVacancy: 'New Job Vacancies',
+    };
+    const label = metricLabels[metric] || metric;
 
     const handlePrevious = () => {
-        if (year > firstYear) setYear((prev) => prev - 1);
+        if (currentYear > firstYear) setCurrentYear((prev) => prev - 1);
     };
 
     const handleNext = () => {
-        if (year < lastYear) setYear((prev) => prev + 1);
+        if (currentYear < lastYear) setCurrentYear((prev) => prev + 1);
     };
+
+    const yearData = monthlyData[currentYear] || [];
+
+    // Map data to include only the selected metric
+    const data = yearData.map((month) => ({
+        month: month.month,
+        value: month[metric] || 0,
+    }));
+
+    const total = data.reduce((sum, month) => sum + month.value, 0);
+
+    const metricLabel = metric.replace(/([A-Z])/g, ' $1');
+
     return (
         <>
             <Card>
                 <CardHeader>
-                    <CardTitle>Total Login Activity (Monthly)</CardTitle>
+                    <CardTitle>Showing (Monthly) {label}</CardTitle>
                     <CardDescription>
-                        January - December ({year})
+                        Jan - Dec, {currentYear} •{' '}
+                        <span className="font-bold">{total}</span> {metricLabel}
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <ResponsiveContainer width="100%" height={400} debounce={200}>
+
+                <CardContent className="h-[400px]">
+                    <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                        debounce={300}
+                    >
                         <LineChart
-                            data={MonthData}
+                            data={data}
                             margin={{
                                 top: 35,
                                 right: 12,
@@ -80,13 +107,20 @@ export function ChartLineMonth() {
                                 textAnchor="end"
                             />
                             <YAxis />
-                            <Tooltip />
+                            <Tooltip
+                                labelFormatter={(value) => `${value}`}
+                                formatter={(value: number) => [
+                                    value,
+                                    metricLabel,
+                                ]}
+                            />
                             <Line
                                 type="monotone"
                                 dataKey="value"
                                 stroke="#084896"
                                 strokeWidth={2}
-                                dot={true}
+                                dot
+                                activeDot={{ r: 6 }}
                             />
                         </LineChart>
                     </ResponsiveContainer>
@@ -97,16 +131,16 @@ export function ChartLineMonth() {
                 <Button
                     size="sm"
                     onClick={handlePrevious}
-                    disabled={year === firstYear}
-                    className="cursor-pointer bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
+                    disabled={currentYear === firstYear}
+                    className="bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
                 >
                     Previous
                 </Button>
                 <Button
                     size="sm"
                     onClick={handleNext}
-                    disabled={year === lastYear}
-                    className="cursor-pointer bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
+                    disabled={currentYear === lastYear}
+                    className="bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
                 >
                     Next
                 </Button>
