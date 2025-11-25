@@ -8,7 +8,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import {
     CartesianGrid,
     Line,
@@ -19,7 +20,16 @@ import {
     YAxis,
 } from 'recharts';
 
-export function ChartLineDay() {
+interface DayDataType {
+    day: number;
+    value: number;
+}
+
+interface ChartLineDayProps {
+    metric: string;
+}
+
+export function ChartLineDay({ metric }: ChartLineDayProps) {
     const months = [
         'January',
         'February',
@@ -39,82 +49,136 @@ export function ChartLineDay() {
     const lastYear = new Date().getFullYear();
 
     const [year, setYear] = useState(lastYear);
-    const [monthIndex, setMonthIndex] = useState(new Date().getMonth()); 
+    const [monthIndex, setMonthIndex] = useState(new Date().getMonth());
+    const [dayData, setDayData] = useState<DayDataType[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const currentMonth = months[monthIndex];
 
-   
-    const generateDaysData = (days: number) =>
-        Array.from({ length: days }, (_, i) => ({
-            day: i + 1,
-            value: Math.floor(Math.random() * 100) + 50, 
-        }));
+    const metricLabels: Record<string, string> = {
+        loginToday: 'Logins',
+        totalAccounts: 'New Accounts (Daily)',
+        jobVacancy: 'New Job Vacancies (Daily)',
+    };
 
-    const dayData = generateDaysData(31);
+    const label = metricLabels[metric] || metric;
+
+
+    const fetchDailyData = async (y: number, m: number) => {
+        setLoading(true);
+        try {
+            let endpoint = '';
+            if (metric === 'loginToday')
+                endpoint = '/peso/dashboard/daily-logins';
+            if (metric === 'totalAccounts')
+                endpoint = '/peso/dashboard/daily-accounts';
+            if (metric === 'jobVacancy')
+                endpoint = '/peso/dashboard/daily-vacancies';
+
+            const res = await axios.get(
+                `${endpoint}?year=${year}&month=${monthIndex + 1}`,
+            );
+
+
+            setDayData(res.data);
+        } catch (err) {
+            console.error(`Failed to fetch daily ${metric}`, err);
+            setDayData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDailyData(year, monthIndex);
+    }, [year, monthIndex, metric]);
 
     const handlePreviousMonth = () => {
-        if (monthIndex > 0) {
-            setMonthIndex((prev) => prev - 1);
-        } else if (year > firstYear) {
+        if (monthIndex > 0) setMonthIndex((prev) => prev - 1);
+        else if (year > firstYear) {
             setYear((prev) => prev - 1);
             setMonthIndex(11);
         }
     };
 
     const handleNextMonth = () => {
-        if (monthIndex < 11) {
-            setMonthIndex((prev) => prev + 1);
-        } else if (year < lastYear) {
+        if (monthIndex < 11) setMonthIndex((prev) => prev + 1);
+        else if (year < lastYear) {
             setYear((prev) => prev + 1);
             setMonthIndex(0);
         }
     };
 
+    const totalLogins = dayData.reduce((sum, day) => sum + day.value, 0);
+
     return (
         <>
             <Card>
                 <CardHeader>
-                    <div>
-                        <CardTitle>
-                            Showing total Login Activity for the last 30 days
-                        </CardTitle>
-                        <CardDescription>
-                            Days 1 - 31 ({currentMonth} {year})
-                        </CardDescription>
-                    </div>
+                    <CardTitle> Showing {label}</CardTitle>
+                    <CardDescription>
+                        {currentMonth} {year} •{' '}
+                        <span className="font-bold">{totalLogins}</span> total
+                    </CardDescription>
                 </CardHeader>
 
                 <CardContent className="w-full">
-                    <ResponsiveContainer width="100%" height={300} debounce={300}>
-                        <LineChart
-                            data={dayData}
-                            margin={{
-                                top: 20,
-                                right: 12,
-                                bottom: 20,
-                                left: 12,
-                            }}
+                    {loading ? (
+                        <div className="flex h-[300px] items-center justify-center">
+                            <p className="text-muted-foreground">Loading...</p>
+                        </div>
+                    ) : dayData.length === 0 ? (
+                        <div className="flex h-[300px] items-center justify-center">
+                            <p className="text-muted-foreground">
+                                No data available
+                            </p>
+                        </div>
+                    ) : (
+                        <ResponsiveContainer
+                            width="100%"
+                            height={300}
+                            debounce={350}
                         >
-                            <CartesianGrid
-                                strokeDasharray="3 3"
-                                vertical={false}
-                            />
-                            <XAxis
-                                dataKey="day"
-                                tickLine={false}
-                                axisLine={false}
-                            />
-                            <YAxis />
-                            <Tooltip />
-                            <Line
-                                type="monotone"
-                                dataKey="value"
-                                stroke="#084896"
-                                strokeWidth={2}
-                                dot={true}
-                            />
-                        </LineChart>
-                    </ResponsiveContainer>
+                            <LineChart data={dayData}>
+                                <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    vertical={false}
+                                />
+                                <XAxis
+                                    dataKey="day"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    label={{
+                                        value: 'Day',
+                                        position: 'insideBottom',
+                                        offset: -5,
+                                    }}
+                                />
+                                <YAxis
+                                    label={{
+                                        value: metric,
+                                        angle: -90,
+                                        position: 'insideLeft',
+                                    }}
+                                />
+                                <Tooltip
+                                    labelFormatter={(value) => `Day ${value}`}
+                                    formatter={(value: number) => [
+                                        value,
+                                        metric,
+                                    ]}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#084896"
+                                    strokeWidth={2}
+                                    dot
+                                    activeDot={{ r: 6 }}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    )}
                 </CardContent>
             </Card>
 
@@ -122,8 +186,10 @@ export function ChartLineDay() {
                 <Button
                     size="sm"
                     onClick={handlePreviousMonth}
-                    disabled={year === firstYear && monthIndex === 0}
-                    className="cursor-pointer bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
+                    disabled={
+                        (year === firstYear && monthIndex === 0) || loading
+                    }
+                    className="bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
                 >
                     Previous
                 </Button>
@@ -131,10 +197,11 @@ export function ChartLineDay() {
                     size="sm"
                     onClick={handleNextMonth}
                     disabled={
-                        year === lastYear &&
-                        monthIndex === new Date().getMonth()
+                        (year === lastYear &&
+                            monthIndex === new Date().getMonth()) ||
+                        loading
                     }
-                    className="cursor-pointer bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
+                    className="bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
                 >
                     Next
                 </Button>
