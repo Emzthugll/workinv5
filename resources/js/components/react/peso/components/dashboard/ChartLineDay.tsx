@@ -39,15 +39,15 @@ export function ChartLineDay() {
     const lastYear = new Date().getFullYear();
 
     const [year, setYear] = useState(lastYear);
-    const [monthIndex, setMonthIndex] = useState(new Date().getMonth()); // 0-11
+    const [monthIndex, setMonthIndex] = useState(new Date().getMonth()); 
 
     const currentMonth = months[monthIndex];
 
-    // Generate example daily data for 31 days
+   
     const generateDaysData = (days: number) =>
         Array.from({ length: days }, (_, i) => ({
             day: i + 1,
-            value: Math.floor(Math.random() * 100) + 50, // replace with real data
+            value: Math.floor(Math.random() * 100) + 50, 
         }));
 
     const dayData = generateDaysData(31);
@@ -73,7 +73,7 @@ export function ChartLineDay() {
     return (
         <>
             <Card>
-                <CardHeader className="flex items-center justify-between">
+                <CardHeader>
                     <div>
                         <CardTitle>
                             Showing total Login Activity for the last 30 days
@@ -85,7 +85,7 @@ export function ChartLineDay() {
                 </CardHeader>
 
                 <CardContent className="w-full">
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={300} debounce={300}>
                         <LineChart
                             data={dayData}
                             margin={{
@@ -123,7 +123,7 @@ export function ChartLineDay() {
                     size="sm"
                     onClick={handlePreviousMonth}
                     disabled={year === firstYear && monthIndex === 0}
-                    className="bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
+                    className="cursor-pointer bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
                 >
                     Previous
                 </Button>
@@ -134,7 +134,7 @@ export function ChartLineDay() {
                         year === lastYear &&
                         monthIndex === new Date().getMonth()
                     }
-                    className="bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
+                    className="cursor-pointer bg-[#2a5296] hover:bg-[#325eaa] disabled:opacity-50"
                 >
                     Next
                 </Button>
