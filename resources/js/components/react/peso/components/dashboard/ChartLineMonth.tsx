@@ -36,7 +36,7 @@ const MonthData = [
 
 export function ChartLineMonth() {
     const firstYear = 2021;
-    const lastYear = new Date().getFullYear(); // current year
+    const lastYear = new Date().getFullYear(); 
 
     const [year, setYear] = useState(lastYear);
 
@@ -57,7 +57,7 @@ export function ChartLineMonth() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ResponsiveContainer width="100%" height={400}>
+                    <ResponsiveContainer width="100%" height={400} debounce={200}>
                         <LineChart
                             data={MonthData}
                             margin={{
