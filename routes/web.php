@@ -18,6 +18,8 @@ use App\Http\Controllers\RecruitmentController;
 
 // Peso
 use App\Http\Controllers\peso\DashboardController;
+use App\Http\Controllers\peso\DashboardUserController;
+use App\Http\Controllers\peso\DashboardJobController;
 
 
 
@@ -100,15 +102,23 @@ Route::middleware(['auth', 'role:employer'])->group(function () {
 });
 
 
-
+// -----------------------------
+// Peso Dashboard
+// -----------------------------
 Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(function () {
 
-    
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
+    Route::get('/dashboard/daily-logins', [DashboardController::class, 'getDailyLogins']);
+    Route::get('/dashboard/daily-accounts', [DashboardUserController::class, 'getDailyAccounts']);
+    Route::get('/dashboard/daily-vacancies', [DashboardJobController::class, 'getDailyVacancies']);
+  
 
-    Route::inertia('/job-posting', 'react/peso/job-posting/Index')
-        ->name('job.index');
+
+
+    Route::inertia('/job-posting', 'react/peso/dashboard/job-posting/JobPosting')
+    ->name('job.index');
+
 
     Route::inertia('/companies', 'react/peso/companies/Index')
         ->name('companies.index');
