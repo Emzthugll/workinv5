@@ -7,16 +7,37 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PesoSidebarLayout from '@/layouts/react/peso/peso-sidebar-layout';
 import { ActivityIcon, Briefcase, Users } from 'lucide-react';
 import { useState } from 'react';
+import { usePage } from '@inertiajs/react';
 
 export default function Dashboard() {
+    const { props } = usePage<{
+        stats: {
+            loginToday: number;
+            totalAccounts: number;
+            jobVacancy: number;
+        };
+    }>();
+
     const BreadcrumbItems = [
         { title: 'Dashboard', href: '/peso/dashboard', active: true },
     ];
 
     const stats = [
-        { title: 'Login Today', value: 25, icon: ActivityIcon },
-        { title: 'Total Accounts', value: 150, icon: Users },
-        { title: 'Job Vacancy', value: 12, icon: Briefcase },
+        {
+            title: 'Login Today',
+            value: props.stats.loginToday,
+            icon: ActivityIcon,
+        },
+        {
+            title: 'Total Accounts',
+            value: props.stats.totalAccounts,
+            icon: Users,
+        },
+        {
+            title: 'Job Vacancy',
+            value: props.stats.jobVacancy,
+            icon: Briefcase,
+        },
     ];
 
     const tabs = ['Year', 'Month', 'Day'];
@@ -86,3 +107,4 @@ export default function Dashboard() {
         </PesoSidebarLayout>
     );
 }
+
