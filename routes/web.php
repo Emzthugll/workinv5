@@ -5,7 +5,40 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\GoogleController;
+
+
+
+
+
+
+// Applicant
 use App\Http\Controllers\RecruitmentController;
+
+
+
+// Peso
+use App\Http\Controllers\peso\DashboardController;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // -----------------------------
 // Public Pages
@@ -66,12 +99,12 @@ Route::middleware(['auth', 'role:employer'])->group(function () {
         ->name('employer.dashboard');
 });
 
-// -----------------------------
-// PESO Dashboard
-// -----------------------------
+
+
 Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(function () {
 
-    Route::inertia('/dashboard', 'react/peso/dashboard/Dashboard')
+    
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
     Route::inertia('/job-posting', 'react/peso/job-posting/Index')
@@ -89,6 +122,7 @@ Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(f
     Route::inertia('/manage-users', 'react/peso/users/Index')
         ->name('users.index');
 });
+
 
 
 
