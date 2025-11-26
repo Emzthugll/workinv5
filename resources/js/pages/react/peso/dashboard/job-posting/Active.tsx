@@ -61,7 +61,7 @@ export default function ActiveTab() {
             {/* Scrollable container */}
             <div className="max-h-[400px] overflow-x-auto overflow-y-auto">
                 <Table className="w-full min-w-[1200px] table-fixed text-xs">
-                    <TableHeader className="sticky top-0 z-10 bg-gray-50">
+                    <TableHeader className="sticky top-0 z-10 ">
                         <TableRow >
                             <TableHead className="w-[200px] truncate border px-3">
                                 Title
