@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PesoSidebarLayout from '@/layouts/react/peso/peso-sidebar-layout';
 import ActiveTab from '@/pages/react/peso/job-posting/Active';
 import ArchiveTab from '@/pages/react/peso/job-posting/Archive';
-import { FileUp, Plus } from 'lucide-react';
+import { FileUp, Plus, Save } from 'lucide-react';
 import { useState } from 'react';
 
 export default function JobPostingPage() {
@@ -131,6 +131,7 @@ export default function JobPostingPage() {
                                 {/* SAVE BUTTON */}
                                 <div className="mt-6">
                                     <Button className="w-full bg-[#2a5296] hover:bg-[#325eaa]">
+                                        <Save className="h-4 w-4"/>
                                         Save
                                     </Button>
                                 </div>
