@@ -116,7 +116,7 @@ Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(f
 
 
 
-    Route::inertia('/job-posting', 'react/peso/dashboard/job-posting/JobPosting')
+    Route::inertia('/job-posting', 'react/peso/job-posting/JobPosting')
     ->name('job.index');
 
 
