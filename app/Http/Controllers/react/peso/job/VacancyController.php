@@ -66,7 +66,7 @@ class VacancyController extends Controller
                     ? "₱" . number_format($vacancy->salary_from) . " - ₱" . number_format($vacancy->salary_to)
                     : "₱" . number_format($vacancy->salary_from ?? 0),
                 'totalVacancy' => $vacancy->total_vacancy,
-                'datePosted' => $vacancy->created_at->format('Y-m-d'),
+                'datePosted' => $vacancy->created_at->format('F d, Y'),
                 'details' => $vacancy->details,
                 'subSpecializationId' => $vacancy->sub_specialization_id,
             ];
