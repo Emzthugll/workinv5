@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PesoSidebarLayout from '@/layouts/react/peso/peso-sidebar-layout';
 import ActiveTab from '@/pages/react/peso/job-posting/Active';
 import ArchiveTab from '@/pages/react/peso/job-posting/Archive';
+import { router } from '@inertiajs/react';
 import { FileUp, Plus, Save } from 'lucide-react';
 import { useState } from 'react';
 
@@ -58,6 +59,37 @@ export default function JobPostingPage({
         filters?.tab === 'archive' ? 'Archive' : 'Active',
     );
 
+    // Handle tab change and fetch data
+    const handleTabChange = (value: string) => {
+        const newTab = value.toLowerCase();
+        setActiveTab(value as 'Active' | 'Archive');
+
+        console.log('Switching to tab:', newTab);
+        console.log('Making request to:', '/peso/job-posting');
+        console.log('With params:', {
+            tab: newTab,
+            page: 1,
+            per_page: 10,
+            search: '',
+        });
+
+        // Fetch data for the new tab
+        router.get(
+            '/peso/job-posting',
+            {
+                tab: newTab,
+                page: 1,
+                per_page: 10,
+                search: '',
+            },
+            {
+                preserveState: false,
+                preserveScroll: false,
+                only: ['vacancies', 'filters'],
+            },
+        );
+    };
+
     const BreadcrumbItems = [
         { title: 'Job Posting', href: '/peso/job-posting', active: false },
         {
@@ -84,12 +116,7 @@ export default function JobPostingPage({
                 />
 
                 <div className="mb-4 flex items-center justify-between">
-                    <Tabs
-                        value={activeTab}
-                        onValueChange={(value) =>
-                            setActiveTab(value as 'Active' | 'Archive')
-                        }
-                    >
+                    <Tabs value={activeTab} onValueChange={handleTabChange}>
                         <TabsList className="overflow-x-auto">
                             {['Active', 'Archive'].map((tab) => (
                                 <TabsTrigger key={tab} value={tab}>
@@ -100,7 +127,7 @@ export default function JobPostingPage({
                     </Tabs>
 
                     <div className="flex items-center gap-2">
-                    
+                        {/* CREATE BUTTON - Only show in Active tab */}
                         {activeTab === 'Active' && (
                             <Sheet>
                                 <SheetTrigger asChild>
@@ -209,12 +236,7 @@ export default function JobPostingPage({
                     </div>
                 </div>
 
-                <Tabs
-                    value={activeTab}
-                    onValueChange={(value) =>
-                        setActiveTab(value as 'Active' | 'Archive')
-                    }
-                >
+                <Tabs value={activeTab} onValueChange={handleTabChange}>
                     <TabsContent value="Active">
                         <ActiveTab
                             vacancies={vacancies}
@@ -224,7 +246,8 @@ export default function JobPostingPage({
 
                     <TabsContent value="Archive">
                         <ArchiveTab
-                            
+                            vacancies={vacancies}
+                            search={filters?.search || ''}
                         />
                     </TabsContent>
                 </Tabs>
