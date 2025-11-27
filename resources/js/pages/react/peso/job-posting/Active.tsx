@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { router } from '@inertiajs/react';
 import { MoreHorizontal } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface VacancyData {
     id: number;
@@ -48,6 +48,10 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
 
     const vacancyData = vacancies || defaultVacancies;
 
+    // Debug: Log what we received
+    console.log('Vacancies received:', vacancies);
+    console.log('Vacancy data:', vacancyData);
+
     const [page, setPage] = useState(vacancyData.current_page);
     const [rowsPerPage, setRowsPerPage] = useState(vacancyData.per_page);
     const [searchQuery, setSearchQuery] = useState(search);
@@ -57,44 +61,6 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
     const totalPages = vacancyData.last_page;
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
-
-    // Fetch data when page or rowsPerPage changes
-    useEffect(() => {
-        router.get(
-            '/peso/job-posting',
-            {
-                page: page,
-                per_page: rowsPerPage,
-                search: searchQuery,
-                tab: 'active',
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-            },
-        );
-    }, [page, rowsPerPage]);
-
-    // Handle search with debounce
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            router.get(
-                '/peso/job-posting',
-                {
-                    page: 1,
-                    per_page: rowsPerPage,
-                    search: searchQuery,
-                    tab: 'active',
-                },
-                {
-                    preserveState: true,
-                    preserveScroll: true,
-                },
-            );
-        }, 500);
-
-        return () => clearTimeout(timeoutId);
-    }, [searchQuery]);
 
     const generatePageButtons = () => {
         const pages: (number | string)[] = [];
@@ -121,7 +87,7 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                 <Table className="w-full min-w-[1200px] table-fixed text-xs">
                     <TableHeader className="sticky top-0 z-10">
                         <TableRow>
-                            <TableHead className="w-[100px] truncate border px-3">
+                            <TableHead className="w-[200px] truncate border px-3">
                                 Title
                             </TableHead>
                             <TableHead className="w-[150px] truncate border px-3">
@@ -139,13 +105,13 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                             <TableHead className="w-[120px] truncate border px-3">
                                 Salary
                             </TableHead>
-                            <TableHead className="w-[80px] border px-3">
+                            <TableHead className="w-[90px] border px-3">
                                 Total Vacancy
                             </TableHead>
                             <TableHead className="w-[100px] border px-3">
                                 Date Posted
                             </TableHead>
-                            <TableHead className="w-[45px] border px-3 text-center">
+                            <TableHead className="w-[80px] border px-3 text-center">
                                 Action
                             </TableHead>
                         </TableRow>
@@ -164,31 +130,31 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                         ) : (
                             data.map((row) => (
                                 <TableRow key={row.id}>
-                                    <TableCell className="truncate border px-2">
+                                    <TableCell className="truncate border px-3">
                                         {row.title}
                                     </TableCell>
-                                    <TableCell className="truncate border px-2">
+                                    <TableCell className="truncate border px-3">
                                         {row.company}
                                     </TableCell>
-                                    <TableCell className="w-full border px-2">
+                                    <TableCell className="w-full border px-3">
                                         {row.totalApplicants}
                                     </TableCell>
                                     <TableCell className="border px-3">
                                         {row.jobType}
                                     </TableCell>
-                                    <TableCell className="truncate border px-2">
+                                    <TableCell className="truncate border px-3">
                                         {row.place}
                                     </TableCell>
-                                    <TableCell className="truncate border px-2">
+                                    <TableCell className="truncate border px-3">
                                         {row.salary}
                                     </TableCell>
-                                    <TableCell className="border px-2">
+                                    <TableCell className="border px-3">
                                         {row.totalVacancy}
                                     </TableCell>
-                                    <TableCell className="border px-2">
+                                    <TableCell className="border px-3">
                                         {row.datePosted}
                                     </TableCell>
-                                    <TableCell className="border px-2 text-center">
+                                    <TableCell className="border px-3 text-center">
                                         <Button variant="ghost" size="icon">
                                             <MoreHorizontal className="h-4 w-4" />
                                         </Button>
@@ -218,8 +184,22 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                         className="rounded border px-2 py-1 text-xs"
                         value={rowsPerPage}
                         onChange={(e) => {
-                            setRowsPerPage(Number(e.target.value));
+                            const newRowsPerPage = Number(e.target.value);
+                            setRowsPerPage(newRowsPerPage);
                             setPage(1);
+                            router.get(
+                                '/peso/job-posting',
+                                {
+                                    page: 1,
+                                    per_page: newRowsPerPage,
+                                    search: searchQuery,
+                                    tab: 'active',
+                                },
+                                {
+                                    preserveState: true,
+                                    preserveScroll: true,
+                                },
+                            );
                         }}
                     >
                         {[10, 20, 50, 100].map((num) => (
@@ -235,7 +215,23 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                         <Button
                             variant="outline"
                             disabled={page === 1}
-                            onClick={() => setPage(page - 1)}
+                            onClick={() => {
+                                const newPage = page - 1;
+                                setPage(newPage);
+                                router.get(
+                                    '/peso/job-posting',
+                                    {
+                                        page: newPage,
+                                        per_page: rowsPerPage,
+                                        search: searchQuery,
+                                        tab: 'active',
+                                    },
+                                    {
+                                        preserveState: true,
+                                        preserveScroll: true,
+                                    },
+                                );
+                            }}
                         >
                             ‹
                         </Button>
@@ -251,7 +247,23 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                                     variant={
                                         p === page ? 'darkblue' : 'outline'
                                     }
-                                    onClick={() => setPage(Number(p))}
+                                    onClick={() => {
+                                        const newPage = Number(p);
+                                        setPage(newPage);
+                                        router.get(
+                                            '/peso/job-posting',
+                                            {
+                                                page: newPage,
+                                                per_page: rowsPerPage,
+                                                search: searchQuery,
+                                                tab: 'active',
+                                            },
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                            },
+                                        );
+                                    }}
                                     className="px-3"
                                 >
                                     {p}
@@ -262,7 +274,23 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                         <Button
                             variant="outline"
                             disabled={page === totalPages}
-                            onClick={() => setPage(page + 1)}
+                            onClick={() => {
+                                const newPage = page + 1;
+                                setPage(newPage);
+                                router.get(
+                                    '/peso/job-posting',
+                                    {
+                                        page: newPage,
+                                        per_page: rowsPerPage,
+                                        search: searchQuery,
+                                        tab: 'active',
+                                    },
+                                    {
+                                        preserveState: true,
+                                        preserveScroll: true,
+                                    },
+                                );
+                            }}
                         >
                             ›
                         </Button>
