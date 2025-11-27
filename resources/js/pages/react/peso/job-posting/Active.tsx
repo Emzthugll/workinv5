@@ -9,34 +9,93 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { router } from '@inertiajs/react';
 import { MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function ActiveTab() {
-    // Pagination state
-    const [page, setPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+interface VacancyData {
+    id: number;
+    title: string;
+    company: string;
+    totalApplicants: number;
+    jobType: string;
+    place: string;
+    salary: string;
+    totalVacancy: number;
+    datePosted: string;
+}
 
-    // Sample data
-    const totalRows = 837;
-    const data = Array.from({ length: totalRows }).map((_, i) => ({
-        title: `Frontend Developer ${i + 1}`,
-        company: `Company ${i + 1}`,
-        totalApplicants: Math.floor(Math.random() * 50),
-        jobType: i % 2 === 0 ? 'Full-time' : 'Part-time',
-        place: 'Manila',
-        salary: '₱30,000 - ₱50,000',
-        totalVacancy: Math.floor(Math.random() * 10),
-        datePosted: '2025-01-10',
-    }));
+interface ActiveTabProps {
+    vacancies?: {
+        data: VacancyData[];
+        total: number;
+        per_page: number;
+        current_page: number;
+        last_page: number;
+    };
+    search?: string;
+}
 
-    // Pagination calculations
-    const totalPages = Math.ceil(totalRows / rowsPerPage);
+export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
+    // Provide default values if vacancies is undefined
+    const defaultVacancies = {
+        data: [],
+        total: 0,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+    };
+
+    const vacancyData = vacancies || defaultVacancies;
+
+    const [page, setPage] = useState(vacancyData.current_page);
+    const [rowsPerPage, setRowsPerPage] = useState(vacancyData.per_page);
+    const [searchQuery, setSearchQuery] = useState(search);
+
+    const data = vacancyData.data;
+    const totalRows = vacancyData.total;
+    const totalPages = vacancyData.last_page;
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
-    const currentRows = data.slice(startIndex, endIndex);
 
-    // Generate page buttons with "..."
+    // Fetch data when page or rowsPerPage changes
+    useEffect(() => {
+        router.get(
+            '/peso/job-posting',
+            {
+                page: page,
+                per_page: rowsPerPage,
+                search: searchQuery,
+                tab: 'active',
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    }, [page, rowsPerPage]);
+
+    // Handle search with debounce
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            router.get(
+                '/peso/job-posting',
+                {
+                    page: 1,
+                    per_page: rowsPerPage,
+                    search: searchQuery,
+                    tab: 'active',
+                },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                },
+            );
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery]);
+
     const generatePageButtons = () => {
         const pages: (number | string)[] = [];
         for (let i = 1; i <= totalPages; i++) {
@@ -58,12 +117,11 @@ export default function ActiveTab() {
 
     return (
         <div className="mt-4 rounded-lg">
-            {/* Scrollable container */}
             <div className="max-h-[400px] overflow-x-auto overflow-y-auto">
                 <Table className="w-full min-w-[1200px] table-fixed text-xs">
                     <TableHeader className="sticky top-0 z-10">
                         <TableRow>
-                            <TableHead className="w-[200px] truncate border px-3">
+                            <TableHead className="w-[100px] truncate border px-3">
                                 Title
                             </TableHead>
                             <TableHead className="w-[150px] truncate border px-3">
@@ -81,64 +139,79 @@ export default function ActiveTab() {
                             <TableHead className="w-[120px] truncate border px-3">
                                 Salary
                             </TableHead>
-                            <TableHead className="w-[90px] border px-3">
+                            <TableHead className="w-[80px] border px-3">
                                 Total Vacancy
                             </TableHead>
                             <TableHead className="w-[100px] border px-3">
                                 Date Posted
                             </TableHead>
-                            <TableHead className="w-[80px] border px-3 text-center">
+                            <TableHead className="w-[45px] border px-3 text-center">
                                 Action
                             </TableHead>
                         </TableRow>
                     </TableHeader>
 
                     <TableBody className="max-h-[400px] overflow-y-auto">
-                        {currentRows.map((row, idx) => (
-                            <TableRow key={idx}>
-                                <TableCell className="truncate border px-3">
-                                    {row.title}
-                                </TableCell>
-                                <TableCell className="truncate border px-3">
-                                    {row.company}
-                                </TableCell>
-                                <TableCell className="w-full border px-3">
-                                    {row.totalApplicants}
-                                </TableCell>
-                                <TableCell className="border px-3">
-                                    {row.jobType}
-                                </TableCell>
-                                <TableCell className="truncate border px-3">
-                                    {row.place}
-                                </TableCell>
-                                <TableCell className="truncate border px-3">
-                                    {row.salary}
-                                </TableCell>
-                                <TableCell className="border px-3">
-                                    {row.totalVacancy}
-                                </TableCell>
-                                <TableCell className="border px-3">
-                                    {row.datePosted}
-                                </TableCell>
-                                <TableCell className="border px-3 text-center">
-                                    <Button variant="ghost" size="icon">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
+                        {data.length === 0 ? (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={9}
+                                    className="py-8 text-center text-gray-500"
+                                >
+                                    No vacancies found
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        ) : (
+                            data.map((row) => (
+                                <TableRow key={row.id}>
+                                    <TableCell className="truncate border px-2">
+                                        {row.title}
+                                    </TableCell>
+                                    <TableCell className="truncate border px-2">
+                                        {row.company}
+                                    </TableCell>
+                                    <TableCell className="w-full border px-2">
+                                        {row.totalApplicants}
+                                    </TableCell>
+                                    <TableCell className="border px-3">
+                                        {row.jobType}
+                                    </TableCell>
+                                    <TableCell className="truncate border px-2">
+                                        {row.place}
+                                    </TableCell>
+                                    <TableCell className="truncate border px-2">
+                                        {row.salary}
+                                    </TableCell>
+                                    <TableCell className="border px-2">
+                                        {row.totalVacancy}
+                                    </TableCell>
+                                    <TableCell className="border px-2">
+                                        {row.datePosted}
+                                    </TableCell>
+                                    <TableCell className="border px-2 text-center">
+                                        <Button variant="ghost" size="icon">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </div>
 
-            {/* Pagination Footer */}
             <div className="mt-4 flex flex-col items-center justify-between gap-2 px-2 py-1 sm:flex-row">
                 <div className="text-xs text-gray-600">
-                    Showing <b>{startIndex + 1}</b> to <b>{endIndex}</b> of{' '}
-                    <b>{totalRows}</b> Results
+                    {totalRows > 0 ? (
+                        <>
+                            Showing <b>{startIndex + 1}</b> to <b>{endIndex}</b>{' '}
+                            of <b>{totalRows}</b> Results
+                        </>
+                    ) : (
+                        'No results'
+                    )}
                 </div>
 
-                {/* Rows per page selector */}
                 <div className="flex items-center gap-2">
                     <span className="text-sm">Rows per page:</span>
                     <select
@@ -157,41 +230,44 @@ export default function ActiveTab() {
                     </select>
                 </div>
 
-                {/* Page numbers */}
-                <div className="flex flex-wrap items-center gap-1">
-                    <Button
-                        variant="outline"
-                        disabled={page === 1}
-                        onClick={() => setPage(page - 1)}
-                    >
-                        ‹
-                    </Button>
+                {totalPages > 0 && (
+                    <div className="flex flex-wrap items-center gap-1">
+                        <Button
+                            variant="outline"
+                            disabled={page === 1}
+                            onClick={() => setPage(page - 1)}
+                        >
+                            ‹
+                        </Button>
 
-                    {generatePageButtons().map((p, idx) =>
-                        p === '...' ? (
-                            <span key={idx} className="px-2">
-                                ...
-                            </span>
-                        ) : (
-                            <Button
-                                key={idx}
-                                variant={p === page ? 'darkblue' : 'outline'}
-                                onClick={() => setPage(Number(p))}
-                                className="px-3"
-                            >
-                                {p}
-                            </Button>
-                        ),
-                    )}
+                        {generatePageButtons().map((p, idx) =>
+                            p === '...' ? (
+                                <span key={idx} className="px-2">
+                                    ...
+                                </span>
+                            ) : (
+                                <Button
+                                    key={idx}
+                                    variant={
+                                        p === page ? 'darkblue' : 'outline'
+                                    }
+                                    onClick={() => setPage(Number(p))}
+                                    className="px-3"
+                                >
+                                    {p}
+                                </Button>
+                            ),
+                        )}
 
-                    <Button
-                        variant="outline"
-                        disabled={page === totalPages}
-                        onClick={() => setPage(page + 1)}
-                    >
-                        ›
-                    </Button>
-                </div>
+                        <Button
+                            variant="outline"
+                            disabled={page === totalPages}
+                            onClick={() => setPage(page + 1)}
+                        >
+                            ›
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );
