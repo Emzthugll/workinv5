@@ -87,31 +87,31 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                 <Table className="w-full min-w-[1200px] table-fixed text-xs">
                     <TableHeader className="sticky top-0 z-10">
                         <TableRow>
-                            <TableHead className="w-[200px] truncate border px-3">
+                            <TableHead className="w-[100px] truncate border px-2">
                                 Title
                             </TableHead>
-                            <TableHead className="w-[150px] truncate border px-3">
+                            <TableHead className="w-[130px] truncate border px-2">
                                 Company
                             </TableHead>
-                            <TableHead className="w-[100px] border px-3">
+                            <TableHead className="w-[100px] border px-2">
                                 Total Applicant
                             </TableHead>
-                            <TableHead className="w-[100px] border px-3">
+                            <TableHead className="w-[100px] border px-2">
                                 Job Type
                             </TableHead>
-                            <TableHead className="w-[150px] truncate border px-3">
+                            <TableHead className="w-[150px] truncate border px-2">
                                 Place of Assignment
                             </TableHead>
-                            <TableHead className="w-[120px] truncate border px-3">
+                            <TableHead className="w-[120px] truncate border px-2">
                                 Salary
                             </TableHead>
-                            <TableHead className="w-[90px] border px-3">
+                            <TableHead className="w-[90px] border px-2">
                                 Total Vacancy
                             </TableHead>
-                            <TableHead className="w-[100px] border px-3">
+                            <TableHead className="w-[100px] border px-2">
                                 Date Posted
                             </TableHead>
-                            <TableHead className="w-[80px] border px-3 text-center">
+                            <TableHead className="w-[80px] border px-2 text-center">
                                 Action
                             </TableHead>
                         </TableRow>
@@ -130,31 +130,31 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                         ) : (
                             data.map((row) => (
                                 <TableRow key={row.id}>
-                                    <TableCell className="truncate border px-3">
+                                    <TableCell className="truncate border px-2">
                                         {row.title}
                                     </TableCell>
-                                    <TableCell className="truncate border px-3">
+                                    <TableCell className="truncate border px-2">
                                         {row.company}
                                     </TableCell>
-                                    <TableCell className="w-full border px-3">
+                                    <TableCell className="w-full border px-2">
                                         {row.totalApplicants}
                                     </TableCell>
-                                    <TableCell className="border px-3">
+                                    <TableCell className="border px-2">
                                         {row.jobType}
                                     </TableCell>
-                                    <TableCell className="truncate border px-3">
+                                    <TableCell className="truncate border px-2">
                                         {row.place}
                                     </TableCell>
-                                    <TableCell className="truncate border px-3">
+                                    <TableCell className="truncate border px-2">
                                         {row.salary}
                                     </TableCell>
-                                    <TableCell className="border px-3">
+                                    <TableCell className="border px-2">
                                         {row.totalVacancy}
                                     </TableCell>
-                                    <TableCell className="border px-3">
+                                    <TableCell className="border px-2">
                                         {row.datePosted}
                                     </TableCell>
-                                    <TableCell className="border px-3 text-center">
+                                    <TableCell className="border px-2 text-center">
                                         <Button variant="ghost" size="icon">
                                             <MoreHorizontal className="h-4 w-4" />
                                         </Button>
