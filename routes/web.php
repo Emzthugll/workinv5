@@ -12,14 +12,15 @@ use App\Http\Controllers\GoogleController;
 
 
 // Applicant
-use App\Http\Controllers\RecruitmentController;
+use App\Http\Controllers\react\applicant\dashboard\RecruitmentController;
+
 
 
 
 // Peso
-use App\Http\Controllers\peso\DashboardController;
-use App\Http\Controllers\peso\DashboardUserController;
-use App\Http\Controllers\peso\DashboardJobController;
+use App\Http\Controllers\react\peso\dashboard\DashboardController;
+use App\Http\Controllers\react\peso\dashboard\DashboardUserController;
+use App\Http\Controllers\react\peso\dashboard\DashboardJobController;
 
 
 
