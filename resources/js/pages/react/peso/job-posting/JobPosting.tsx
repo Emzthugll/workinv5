@@ -30,7 +30,18 @@ export default function JobPostingPage() {
     return (
         <PesoSidebarLayout breadcrumbs={BreadcrumbItems}>
             <div className="m-4">
-                <Heading title="Vacancies" description="Manage Vacancies" />
+                <Heading
+                    title={
+                        activeTab === 'Active'
+                            ? 'Vacancies'
+                            : 'Job Vacancy Archive'
+                    }
+                    description={
+                        activeTab === 'Active'
+                            ? 'Manage Vacancies'
+                            : 'List of previous job vacancy postings'
+                    }
+                />
 
                 <div className="mb-4 flex items-center justify-between">
                     <Tabs
@@ -49,102 +60,105 @@ export default function JobPostingPage() {
                     </Tabs>
 
                     <div className="flex items-center gap-2">
-                        {/* CREATE BUTTON WITH SLIDEOVER */}
-                        <Sheet>
-                            <SheetTrigger asChild>
-                                <Button className="flex cursor-pointer items-center gap-1 bg-[#2a5296] p-1 hover:bg-[#325eaa]">
-                                    <Plus className="h-4 w-4" />
-                                    Create
-                                </Button>
-                            </SheetTrigger>
+                        {activeTab === 'Active' && (
+                            <Sheet>
+                                <SheetTrigger asChild>
+                                    <Button className="flex cursor-pointer items-center gap-1 bg-[#2a5296] p-1 hover:bg-[#325eaa]">
+                                        <Plus className="h-4 w-4" />
+                                        Create
+                                    </Button>
+                                </SheetTrigger>
 
-                            <SheetContent
-                                side="right"
-                                className="w-[800px] max-w-none overflow-y-auto rounded-l-xl p-6 shadow-xl"
-                            >
-                                <SheetHeader>
-                                    <div className="flex items-center justify-between">
-                                        <SheetTitle>Create Vacancy</SheetTitle>
-                                        <SheetClose asChild></SheetClose>
-                                    </div>
-                                    <SheetDescription>
-                                        Fill out the fields below to add a new
-                                        vacancy.
-                                    </SheetDescription>
-                                </SheetHeader>
+                                <SheetContent
+                                    side="right"
+                                    className="w-[800px] max-w-none overflow-y-auto rounded-l-xl p-6 shadow-xl"
+                                >
+                                    <SheetHeader>
+                                        <div className="flex items-center justify-between">
+                                            <SheetTitle>
+                                                Create Vacancy
+                                            </SheetTitle>
+                                            <SheetClose asChild></SheetClose>
+                                        </div>
+                                        <SheetDescription>
+                                            Fill out the fields below to add a
+                                            new vacancy.
+                                        </SheetDescription>
+                                    </SheetHeader>
 
-                                {/* FORM FIELDS */}
-                                <div className="mt-4 space-y-4">
-                                    <div>
-                                        <Label>Company</Label>
-                                        <Input />
-                                    </div>
+                                    {/* FORM FIELDS */}
+                                    <div className="mt-4 space-y-4">
+                                        <div>
+                                            <Label>Company</Label>
+                                            <Input />
+                                        </div>
 
-                                    <div>
-                                        <Label>Job Title</Label>
-                                        <Input />
-                                    </div>
+                                        <div>
+                                            <Label>Job Title</Label>
+                                            <Input />
+                                        </div>
 
-                                    <div>
-                                        <Label>Place of Assignment</Label>
-                                        <Input />
-                                    </div>
+                                        <div>
+                                            <Label>Place of Assignment</Label>
+                                            <Input />
+                                        </div>
 
-                                    <div>
-                                        <Label>Category (Specialization)</Label>
-                                        <Input />
-                                    </div>
+                                        <div>
+                                            <Label>
+                                                Category (Specialization)
+                                            </Label>
+                                            <Input />
+                                        </div>
 
-                                    <div>
-                                        <Label>Salary Range</Label>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                placeholder="From"
-                                                className="w-1/2"
-                                            />
-                                            <Input
-                                                placeholder="To"
-                                                className="w-1/2"
-                                            />
+                                        <div>
+                                            <Label>Salary Range</Label>
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    placeholder="From"
+                                                    className="w-1/2"
+                                                />
+                                                <Input
+                                                    placeholder="To"
+                                                    className="w-1/2"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <Label>Total Vacancies</Label>
+                                            <Input type="number" />
+                                        </div>
+
+                                        <div>
+                                            <Label>Job Type</Label>
+                                            <Input />
+                                        </div>
+
+                                        <div>
+                                            <Label>Details</Label>
+                                            <textarea
+                                                className="w-full rounded-md border p-2"
+                                                rows={4}
+                                            ></textarea>
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <Label>Total Vacancies</Label>
-                                        <Input type="number" />
+                                    {/* SAVE BUTTON */}
+                                    <div className="mt-6">
+                                        <Button className="w-full cursor-pointer bg-[#2a5296] hover:bg-[#325eaa]">
+                                            <Save className="h-4 w-4" />
+                                            Save
+                                        </Button>
                                     </div>
+                                </SheetContent>
+                            </Sheet>
+                        )}
 
-                                    <div>
-                                        <Label>Job Type</Label>
-                                        <Input />
-                                    </div>
-
-                                    <div>
-                                        <Label>Details</Label>
-                                        <textarea
-                                            className="w-full rounded-md border p-2"
-                                            rows={4}
-                                        ></textarea>
-                                    </div>
-                                </div>
-
-                                {/* SAVE BUTTON */}
-                                <div className="mt-6">
-                                    <Button className="w-full bg-[#2a5296] hover:bg-[#325eaa]">
-                                        <Save className="h-4 w-4"/>
-                                        Save
-                                    </Button>
-                                </div>
-                            </SheetContent>
-                        </Sheet>
-
-                        {/* EXPORT BUTTON */}
                         <Button className="flex cursor-pointer items-center gap-1 bg-[#2a5296] p-1 hover:bg-[#325eaa]">
                             <FileUp className="h-4 w-4" />
                             Export
                         </Button>
 
-                        {/* SEARCH INPUT */}
                         <Input
                             className="w-[300px]"
                             placeholder="Search Vacancies..."
