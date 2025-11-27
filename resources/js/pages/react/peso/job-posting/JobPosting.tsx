@@ -20,8 +20,44 @@ import ArchiveTab from '@/pages/react/peso/job-posting/Archive';
 import { FileUp, Plus, Save } from 'lucide-react';
 import { useState } from 'react';
 
-export default function JobPostingPage() {
-    const [activeTab, setActiveTab] = useState<'Active' | 'Archive'>('Active');
+interface VacancyData {
+    id: number;
+    title: string;
+    company: string;
+    totalApplicants: number;
+    jobType: string;
+    place: string;
+    salary: string;
+    totalVacancy: number;
+    datePosted: string;
+}
+
+interface JobPostingPageProps {
+    vacancies: {
+        data: VacancyData[];
+        total: number;
+        per_page: number;
+        current_page: number;
+        last_page: number;
+    };
+    companies: any[];
+    subspecializations: any[];
+    filters: {
+        search: string;
+        tab: string;
+    };
+}
+
+export default function JobPostingPage({
+    vacancies,
+    companies,
+    subspecializations,
+    filters = { search: '', tab: 'active' },
+}: JobPostingPageProps) {
+    const [activeTab, setActiveTab] = useState<'Active' | 'Archive'>(
+        filters?.tab === 'archive' ? 'Archive' : 'Active',
+    );
+
     const BreadcrumbItems = [
         { title: 'Job Posting', href: '/peso/job-posting', active: false },
         {
@@ -64,6 +100,7 @@ export default function JobPostingPage() {
                     </Tabs>
 
                     <div className="flex items-center gap-2">
+                    
                         {activeTab === 'Active' && (
                             <Sheet>
                                 <SheetTrigger asChild>
@@ -149,7 +186,7 @@ export default function JobPostingPage() {
 
                                     {/* SAVE BUTTON */}
                                     <div className="mt-6">
-                                        <Button className="w-full cursor-pointer bg-[#2a5296] hover:bg-[#325eaa]">
+                                        <Button className="w-full bg-[#2a5296] hover:bg-[#325eaa]">
                                             <Save className="h-4 w-4" />
                                             Save
                                         </Button>
@@ -158,11 +195,13 @@ export default function JobPostingPage() {
                             </Sheet>
                         )}
 
+                        {/* EXPORT BUTTON - Show in both tabs */}
                         <Button className="flex cursor-pointer items-center gap-1 bg-[#2a5296] p-1 hover:bg-[#325eaa]">
                             <FileUp className="h-4 w-4" />
                             Export
                         </Button>
 
+                        {/* SEARCH INPUT - Show in both tabs */}
                         <Input
                             className="w-[300px]"
                             placeholder="Search Vacancies..."
@@ -177,11 +216,16 @@ export default function JobPostingPage() {
                     }
                 >
                     <TabsContent value="Active">
-                        <ActiveTab />
+                        <ActiveTab
+                            vacancies={vacancies}
+                            search={filters?.search || ''}
+                        />
                     </TabsContent>
 
                     <TabsContent value="Archive">
-                        <ArchiveTab />
+                        <ArchiveTab
+                            
+                        />
                     </TabsContent>
                 </Tabs>
             </div>
