@@ -21,11 +21,15 @@ import { FileUp, Plus, Save } from 'lucide-react';
 import { useState } from 'react';
 
 export default function JobPostingPage() {
-    const BreadcrumbItems = [
-        { title: 'Job Posting', href: '/peso/job-posting', active: true },
-    ];
-
     const [activeTab, setActiveTab] = useState<'Active' | 'Archive'>('Active');
+    const BreadcrumbItems = [
+        { title: 'Job Posting', href: '/peso/job-posting', active: false },
+        {
+            title: activeTab,
+            href: `/peso/job-posting/${activeTab.toLowerCase()}`,
+            active: true,
+        },
+    ];
 
     return (
         <PesoSidebarLayout breadcrumbs={BreadcrumbItems}>
