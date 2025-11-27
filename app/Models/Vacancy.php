@@ -29,4 +29,20 @@ class Vacancy extends Model
     {
         return $this->belongsTo(Company::class);
     }
+
+    /**
+     * The sub specialization for the vacancy.
+     */
+    public function subSpecialization()
+    {
+        return $this->belongsTo(SubSpecialization::class);
+    }
+
+    /**
+     * The job applications for this vacancy.
+     */
+    public function jobApplications()
+    {
+        return $this->hasMany(JobApplication::class); 
+    }
 }
