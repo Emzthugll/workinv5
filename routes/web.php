@@ -21,6 +21,7 @@ use App\Http\Controllers\react\applicant\dashboard\RecruitmentController;
 use App\Http\Controllers\react\peso\dashboard\DashboardController;
 use App\Http\Controllers\react\peso\dashboard\DashboardUserController;
 use App\Http\Controllers\react\peso\dashboard\DashboardJobController;
+use App\Http\Controllers\react\peso\job\VacancyController;
 
 
 
@@ -117,8 +118,8 @@ Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(f
 
 
 
-    Route::inertia('/job-posting', 'react/peso/job-posting/JobPosting')
-    ->name('job.index');
+
+    Route::get('/job-posting', [VacancyController::class, 'index'])->name('peso.job-posting');
 
 
     Route::inertia('/companies', 'react/peso/companies/Index')
