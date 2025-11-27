@@ -8,14 +8,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Vacancy extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = ['company_id','title','details','sub_specialization_id', 'job_type','location', 'salary_from', 'salary_to','total_vacancy'];
+    protected $fillable = [
+        'company_id',
+        'title',
+        'details',
+        'sub_specialization_id',
+        'job_type',
+        'location',
+        'salary_from',
+        'salary_to',
+        'total_vacancy',
+    ];
 
-
-
-    
-
-    
+    /**
+     * The company that owns the vacancy.
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }
