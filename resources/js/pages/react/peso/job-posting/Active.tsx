@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Table,
     TableBody,
@@ -34,10 +35,14 @@ interface ActiveTabProps {
         last_page: number;
     };
     search?: string;
+    onSelectionChange?: (selectedIds: number[]) => void; 
 }
 
-export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
-    // Provide default values if vacancies is undefined
+export default function ActiveTab({
+    vacancies,
+    search = '',
+    onSelectionChange,
+}: ActiveTabProps) {
     const defaultVacancies = {
         data: [],
         total: 0,
@@ -47,11 +52,7 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
     };
 
     const vacancyData = vacancies || defaultVacancies;
-
-    // Debug: Log what we received
-    console.log('Vacancies received:', vacancies);
-    console.log('Vacancy data:', vacancyData);
-
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [page, setPage] = useState(vacancyData.current_page);
     const [rowsPerPage, setRowsPerPage] = useState(vacancyData.per_page);
     const [searchQuery, setSearchQuery] = useState(search);
@@ -61,6 +62,14 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
     const totalPages = vacancyData.last_page;
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+
+    // Update parent component when selection changes
+    const updateSelection = (newSelection: number[]) => {
+        setSelectedRows(newSelection);
+        if (onSelectionChange) {
+            onSelectionChange(newSelection);
+        }
+    };
 
     const generatePageButtons = () => {
         const pages: (number | string)[] = [];
@@ -87,25 +96,43 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                 <Table className="w-full min-w-[1200px] table-fixed text-xs">
                     <TableHeader className="sticky top-0 z-10">
                         <TableRow>
+                            {/* Checkbox Column */}
+                            <TableHead className="w-[50px] border px-2 text-center">
+                                <Checkbox
+                                    checked={
+                                        selectedRows.length === data.length &&
+                                        data.length > 0
+                                    }
+                                    onCheckedChange={(checked) => {
+                                        if (checked) {
+                                            updateSelection(
+                                                data.map((row) => row.id),
+                                            );
+                                        } else {
+                                            updateSelection([]);
+                                        }
+                                    }}
+                                />
+                            </TableHead>
                             <TableHead className="w-[100px] truncate border px-2">
                                 Title
                             </TableHead>
                             <TableHead className="w-[130px] truncate border px-2">
                                 Company
                             </TableHead>
-                            <TableHead className="w-[100px] border px-2">
+                            <TableHead className="w-[80px] border px-2">
                                 Total Applicant
                             </TableHead>
-                            <TableHead className="w-[100px] border px-2">
+                            <TableHead className="w-[70px] border px-2">
                                 Job Type
                             </TableHead>
-                            <TableHead className="w-[150px] truncate border px-2">
+                            <TableHead className="w-[110px] truncate border px-2">
                                 Place of Assignment
                             </TableHead>
                             <TableHead className="w-[120px] truncate border px-2">
                                 Salary
                             </TableHead>
-                            <TableHead className="w-[90px] border px-2">
+                            <TableHead className="w-[70px] border px-2">
                                 Total Vacancy
                             </TableHead>
                             <TableHead className="w-[100px] border px-2">
@@ -121,7 +148,7 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                         {data.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={10}
                                     className="py-8 text-center text-gray-500"
                                 >
                                     No vacancies found
@@ -130,6 +157,28 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                         ) : (
                             data.map((row) => (
                                 <TableRow key={row.id}>
+                                    <TableCell className="border px-2 text-center">
+                                        <Checkbox
+                                            checked={selectedRows.includes(
+                                                row.id,
+                                            )}
+                                            onCheckedChange={(checked) => {
+                                                if (checked) {
+                                                    updateSelection([
+                                                        ...selectedRows,
+                                                        row.id,
+                                                    ]);
+                                                } else {
+                                                    updateSelection(
+                                                        selectedRows.filter(
+                                                            (id) =>
+                                                                id !== row.id,
+                                                        ),
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    </TableCell>
                                     <TableCell className="truncate border px-2">
                                         {row.title}
                                     </TableCell>
@@ -166,6 +215,7 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                 </Table>
             </div>
 
+            {/* Pagination */}
             <div className="mt-4 flex flex-col items-center justify-between gap-2 px-2 py-1 sm:flex-row">
                 <div className="text-xs text-gray-600">
                     {totalRows > 0 ? (
@@ -195,10 +245,7 @@ export default function ActiveTab({ vacancies, search = '' }: ActiveTabProps) {
                                     search: searchQuery,
                                     tab: 'active',
                                 },
-                                {
-                                    preserveState: true,
-                                    preserveScroll: true,
-                                },
+                                { preserveState: true, preserveScroll: true },
                             );
                         }}
                     >
