@@ -22,6 +22,7 @@ use App\Http\Controllers\react\peso\dashboard\DashboardController;
 use App\Http\Controllers\react\peso\dashboard\DashboardUserController;
 use App\Http\Controllers\react\peso\dashboard\DashboardJobController;
 use App\Http\Controllers\react\peso\job\VacancyController;
+use App\Http\Controllers\react\peso\job\ExportController;
 
 
 
@@ -118,15 +119,17 @@ Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(f
 
 
 
-
-    Route::get('/job-posting', [VacancyController::class, 'index'])->name('peso.job-posting');
+Route::get('/job-posting', [VacancyController::class, 'index'])->name('peso.job-posting');
+Route::get('/job-posting/export', [ExportController::class, 'exportVacancies']);
 
 
     Route::inertia('/companies', 'react/peso/companies/Index')
         ->name('companies.index');
+    //Route::get('/peso/companies/export', [ExportController::class, 'exportCompanies']);
 
     Route::inertia('/recruitment-activity', 'react/peso/recruitment/Index')
         ->name('recruitment.index');
+   // Route::get('/peso/recruitment-activities/export', [ExportController::class, 'exportRecruitmentActivities']);
 
     Route::inertia('/mat-report', 'react/peso/mat/Index')
         ->name('mat.index');
