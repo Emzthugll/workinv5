@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Table,
     TableBody,
@@ -34,13 +35,14 @@ interface ArchiveTabProps {
         last_page: number;
     };
     search?: string;
+    onSelectionChange?: (selectedIds: number[]) => void;
 }
 
 export default function ArchiveTab({
     vacancies,
     search = '',
+    onSelectionChange,
 }: ArchiveTabProps) {
-    // Provide default values if vacancies is undefined
     const defaultVacancies = {
         data: [],
         total: 0,
@@ -50,11 +52,7 @@ export default function ArchiveTab({
     };
 
     const vacancyData = vacancies || defaultVacancies;
-
-    // Debug: Log what we received
-    console.log('Archive Vacancies received:', vacancies);
-    console.log('Archive Vacancy data:', vacancyData);
-
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [page, setPage] = useState(vacancyData.current_page);
     const [rowsPerPage, setRowsPerPage] = useState(vacancyData.per_page);
     const [searchQuery, setSearchQuery] = useState(search);
@@ -64,6 +62,14 @@ export default function ArchiveTab({
     const totalPages = vacancyData.last_page;
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+
+    // Update parent component when selection changes
+    const updateSelection = (newSelection: number[]) => {
+        setSelectedRows(newSelection);
+        if (onSelectionChange) {
+            onSelectionChange(newSelection);
+        }
+    };
 
     const generatePageButtons = () => {
         const pages: (number | string)[] = [];
@@ -90,6 +96,24 @@ export default function ArchiveTab({
                 <Table className="w-full min-w-[1200px] table-fixed text-xs">
                     <TableHeader className="sticky top-0 z-10 bg-gray-50">
                         <TableRow>
+                            {/* Checkbox Column */}
+                            <TableHead className="w-[50px] border px-2 text-center">
+                                <Checkbox
+                                    checked={
+                                        selectedRows.length === data.length &&
+                                        data.length > 0
+                                    }
+                                    onCheckedChange={(checked) => {
+                                        if (checked) {
+                                            updateSelection(
+                                                data.map((row) => row.id),
+                                            );
+                                        } else {
+                                            updateSelection([]);
+                                        }
+                                    }}
+                                />
+                            </TableHead>
                             <TableHead className="w-[200px] truncate border px-3">
                                 Title
                             </TableHead>
@@ -124,7 +148,7 @@ export default function ArchiveTab({
                         {data.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={10}
                                     className="py-8 text-center text-gray-500"
                                 >
                                     No archived vacancies found
@@ -133,6 +157,28 @@ export default function ArchiveTab({
                         ) : (
                             data.map((row) => (
                                 <TableRow key={row.id}>
+                                    <TableCell className="border px-2 text-center">
+                                        <Checkbox
+                                            checked={selectedRows.includes(
+                                                row.id,
+                                            )}
+                                            onCheckedChange={(checked) => {
+                                                if (checked) {
+                                                    updateSelection([
+                                                        ...selectedRows,
+                                                        row.id,
+                                                    ]);
+                                                } else {
+                                                    updateSelection(
+                                                        selectedRows.filter(
+                                                            (id) =>
+                                                                id !== row.id,
+                                                        ),
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    </TableCell>
                                     <TableCell className="truncate border px-3">
                                         {row.title}
                                     </TableCell>
