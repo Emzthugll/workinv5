@@ -18,8 +18,8 @@ import PesoSidebarLayout from '@/layouts/react/peso/peso-sidebar-layout';
 import ActiveTab from '@/pages/react/peso/job-posting/Active';
 import ArchiveTab from '@/pages/react/peso/job-posting/Archive';
 import { router } from '@inertiajs/react';
-import { FileUp, Plus, Save } from 'lucide-react';
-import { useState } from 'react';
+import { FileUp, Loader2, Plus, Save } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface VacancyData {
     id: number;
@@ -59,28 +59,70 @@ export default function JobPostingPage({
         filters?.tab === 'archive' ? 'Archive' : 'Active',
     );
 
-    // Handle tab change and fetch data
+    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+    const [isSearching, setIsSearching] = useState(false);
+    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+    // Listen to Inertia navigation events
+    useEffect(() => {
+        const handleStart = () => setIsSearching(true);
+        const handleFinish = () => setIsSearching(false);
+
+        const removeStartListener = router.on('start', handleStart);
+        const removeFinishListener = router.on('finish', handleFinish);
+
+        return () => {
+            removeStartListener();
+            removeFinishListener();
+        };
+    }, []);
+
+    // Handle search with proper debounce
+    const handleSearch = (value: string) => {
+        setSearchTerm(value);
+
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
+
+        debounceTimeout.current = setTimeout(() => {
+            router.get(
+                '/peso/job-posting',
+                {
+                    tab: activeTab.toLowerCase(),
+                    page: 1,
+                    per_page: 10,
+                    search: value,
+                },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    only: ['vacancies', 'filters'],
+                },
+            );
+        }, 300);
+    };
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (debounceTimeout.current) {
+                clearTimeout(debounceTimeout.current);
+            }
+        };
+    }, []);
+
     const handleTabChange = (value: string) => {
         const newTab = value.toLowerCase();
         setActiveTab(value as 'Active' | 'Archive');
 
-        console.log('Switching to tab:', newTab);
-        console.log('Making request to:', '/peso/job-posting');
-        console.log('With params:', {
-            tab: newTab,
-            page: 1,
-            per_page: 10,
-            search: '',
-        });
-
-        // Fetch data for the new tab
         router.get(
             '/peso/job-posting',
             {
                 tab: newTab,
                 page: 1,
                 per_page: 10,
-                search: '',
+                search: searchTerm,
             },
             {
                 preserveState: false,
@@ -228,11 +270,18 @@ export default function JobPostingPage({
                             Export
                         </Button>
 
-                        {/* SEARCH INPUT - Show in both tabs */}
-                        <Input
-                            className="w-[300px]"
-                            placeholder="Search Vacancies..."
-                        />
+                        {/* SEARCH INPUT with Loading Spinner */}
+                        <div className="relative">
+                            <Input
+                                className="w-[300px] pr-10"
+                                placeholder="Search Vacancies..."
+                                value={searchTerm}
+                                onChange={(e) => handleSearch(e.target.value)}
+                            />
+                            {isSearching && (
+                                <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+                            )}
+                        </div>
                     </div>
                 </div>
 
