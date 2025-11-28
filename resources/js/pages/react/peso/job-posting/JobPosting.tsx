@@ -1,53 +1,18 @@
 'use client';
 
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PesoSidebarLayout from '@/layouts/react/peso/peso-sidebar-layout';
 import ActiveTab from '@/pages/react/peso/job-posting/Active';
 import ArchiveTab from '@/pages/react/peso/job-posting/Archive';
-import { router } from '@inertiajs/react';
-import { FileUp, Loader2, Plus, Save } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-
-interface VacancyData {
-    id: number;
-    title: string;
-    company: string;
-    totalApplicants: number;
-    jobType: string;
-    place: string;
-    salary: string;
-    totalVacancy: number;
-    datePosted: string;
-}
-
-interface JobPostingPageProps {
-    vacancies: {
-        data: VacancyData[];
-        total: number;
-        per_page: number;
-        current_page: number;
-        last_page: number;
-    };
-    companies: any[];
-    subspecializations: any[];
-    filters: {
-        search: string;
-        tab: string;
-    };
-}
+import { useState } from 'react';
+import ExportButton from '@/components/ExportButton';
+import CreateVacancySheet from '@/components/react/peso/components/job-posting/CreateVacancySheet';
+import SearchInput from '@/components/react/peso/components/job-posting/SearchInput';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useInertiaLoading } from '@/hooks/useInertiaLoading';
+import { JobPostingPageProps, TabType } from '@/types/react/peso/job/vacancy.types';
+import { navigateToVacancies, getBreadcrumbs, getHeadingText } from '@/utils/react/peso/job-posting/vacancy.utils';
 
 export default function JobPostingPage({
     vacancies,
@@ -55,71 +20,43 @@ export default function JobPostingPage({
     subspecializations,
     filters = { search: '', tab: 'active' },
 }: JobPostingPageProps) {
-    const [activeTab, setActiveTab] = useState<'Active' | 'Archive'>(
-        filters?.tab === 'archive' ? 'Archive' : 'Active',
+    const [activeTab, setActiveTab] = useState<TabType>(
+        filters?.tab === 'archive' ? 'Archive' : 'Active'
     );
-
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
-    const [isSearching, setIsSearching] = useState(false);
-    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+    const [selectedVacancyIds, setSelectedVacancyIds] = useState<number[]>([]);
+    const isSearching = useInertiaLoading();
 
-    // Listen to Inertia navigation events
-    useEffect(() => {
-        const handleStart = () => setIsSearching(true);
-        const handleFinish = () => setIsSearching(false);
+    // Debounced search handler
+    const debouncedSearch = useDebounce((value: string) => {
+        navigateToVacancies(
+            {
+                tab: activeTab.toLowerCase(),
+                page: 1,
+                per_page: 10,
+                search: value,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ['vacancies', 'filters'],
+            }
+        );
+    }, 300);
 
-        const removeStartListener = router.on('start', handleStart);
-        const removeFinishListener = router.on('finish', handleFinish);
-
-        return () => {
-            removeStartListener();
-            removeFinishListener();
-        };
-    }, []);
-
-    // Handle search with proper debounce
     const handleSearch = (value: string) => {
         setSearchTerm(value);
-
-        if (debounceTimeout.current) {
-            clearTimeout(debounceTimeout.current);
-        }
-
-        debounceTimeout.current = setTimeout(() => {
-            router.get(
-                '/peso/job-posting',
-                {
-                    tab: activeTab.toLowerCase(),
-                    page: 1,
-                    per_page: 10,
-                    search: value,
-                },
-                {
-                    preserveState: true,
-                    preserveScroll: true,
-                    only: ['vacancies', 'filters'],
-                },
-            );
-        }, 300);
+        debouncedSearch(value);
     };
 
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (debounceTimeout.current) {
-                clearTimeout(debounceTimeout.current);
-            }
-        };
-    }, []);
-
+    // Tab change handler
     const handleTabChange = (value: string) => {
-        const newTab = value.toLowerCase();
-        setActiveTab(value as 'Active' | 'Archive');
+        setActiveTab(value as TabType);
+        setSelectedVacancyIds([]);
 
-        router.get(
-            '/peso/job-posting',
+        navigateToVacancies(
             {
-                tab: newTab,
+                tab: value.toLowerCase(),
                 page: 1,
                 per_page: 10,
                 search: searchTerm,
@@ -128,34 +65,17 @@ export default function JobPostingPage({
                 preserveState: false,
                 preserveScroll: false,
                 only: ['vacancies', 'filters'],
-            },
+            }
         );
     };
 
-    const BreadcrumbItems = [
-        { title: 'Job Posting', href: '/peso/job-posting', active: false },
-        {
-            title: activeTab,
-            href: `/peso/job-posting/${activeTab.toLowerCase()}`,
-            active: true,
-        },
-    ];
+    const { title, description } = getHeadingText(activeTab);
+    const breadcrumbs = getBreadcrumbs(activeTab);
 
     return (
-        <PesoSidebarLayout breadcrumbs={BreadcrumbItems}>
+        <PesoSidebarLayout breadcrumbs={breadcrumbs}>
             <div className="m-4">
-                <Heading
-                    title={
-                        activeTab === 'Active'
-                            ? 'Vacancies'
-                            : 'Job Vacancy Archive'
-                    }
-                    description={
-                        activeTab === 'Active'
-                            ? 'Manage Vacancies'
-                            : 'List of previous job vacancy postings'
-                    }
-                />
+                <Heading title={title} description={description} />
 
                 <div className="mb-4 flex items-center justify-between">
                     <Tabs value={activeTab} onValueChange={handleTabChange}>
@@ -169,119 +89,24 @@ export default function JobPostingPage({
                     </Tabs>
 
                     <div className="flex items-center gap-2">
-                        {/* CREATE BUTTON - Only show in Active tab */}
-                        {activeTab === 'Active' && (
-                            <Sheet>
-                                <SheetTrigger asChild>
-                                    <Button className="flex cursor-pointer items-center gap-1 bg-[#2a5296] p-1 hover:bg-[#325eaa]">
-                                        <Plus className="h-4 w-4" />
-                                        Create
-                                    </Button>
-                                </SheetTrigger>
+                        {activeTab === 'Active' && <CreateVacancySheet />}
 
-                                <SheetContent
-                                    side="right"
-                                    className="w-[800px] max-w-none overflow-y-auto rounded-l-xl p-6 shadow-xl"
-                                >
-                                    <SheetHeader>
-                                        <div className="flex items-center justify-between">
-                                            <SheetTitle>
-                                                Create Vacancy
-                                            </SheetTitle>
-                                            <SheetClose asChild></SheetClose>
-                                        </div>
-                                        <SheetDescription>
-                                            Fill out the fields below to add a
-                                            new vacancy.
-                                        </SheetDescription>
-                                    </SheetHeader>
+                        <ExportButton
+                            endpoint="/peso/job-posting/export"
+                            params={{
+                                tab: activeTab.toLowerCase(),
+                                search: searchTerm,
+                            }}
+                            selectedIds={selectedVacancyIds}
+                            label="Export"
+                        />
 
-                                    {/* FORM FIELDS */}
-                                    <div className="mt-4 space-y-4">
-                                        <div>
-                                            <Label>Company</Label>
-                                            <Input />
-                                        </div>
-
-                                        <div>
-                                            <Label>Job Title</Label>
-                                            <Input />
-                                        </div>
-
-                                        <div>
-                                            <Label>Place of Assignment</Label>
-                                            <Input />
-                                        </div>
-
-                                        <div>
-                                            <Label>
-                                                Category (Specialization)
-                                            </Label>
-                                            <Input />
-                                        </div>
-
-                                        <div>
-                                            <Label>Salary Range</Label>
-                                            <div className="flex gap-2">
-                                                <Input
-                                                    placeholder="From"
-                                                    className="w-1/2"
-                                                />
-                                                <Input
-                                                    placeholder="To"
-                                                    className="w-1/2"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <Label>Total Vacancies</Label>
-                                            <Input type="number" />
-                                        </div>
-
-                                        <div>
-                                            <Label>Job Type</Label>
-                                            <Input />
-                                        </div>
-
-                                        <div>
-                                            <Label>Details</Label>
-                                            <textarea
-                                                className="w-full rounded-md border p-2"
-                                                rows={4}
-                                            ></textarea>
-                                        </div>
-                                    </div>
-
-                                    {/* SAVE BUTTON */}
-                                    <div className="mt-6">
-                                        <Button className="w-full bg-[#2a5296] hover:bg-[#325eaa]">
-                                            <Save className="h-4 w-4" />
-                                            Save
-                                        </Button>
-                                    </div>
-                                </SheetContent>
-                            </Sheet>
-                        )}
-
-                        {/* EXPORT BUTTON - Show in both tabs */}
-                        <Button className="flex cursor-pointer items-center gap-1 bg-[#2a5296] p-1 hover:bg-[#325eaa]">
-                            <FileUp className="h-4 w-4" />
-                            Export
-                        </Button>
-
-                        {/* SEARCH INPUT with Loading Spinner */}
-                        <div className="relative">
-                            <Input
-                                className="w-[300px] pr-10"
-                                placeholder="Search Vacancies..."
-                                value={searchTerm}
-                                onChange={(e) => handleSearch(e.target.value)}
-                            />
-                            {isSearching && (
-                                <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
-                            )}
-                        </div>
+                        <SearchInput
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            isLoading={isSearching}
+                            placeholder="Search Vacancies..."
+                        />
                     </div>
                 </div>
 
@@ -290,6 +115,7 @@ export default function JobPostingPage({
                         <ActiveTab
                             vacancies={vacancies}
                             search={filters?.search || ''}
+                            onSelectionChange={setSelectedVacancyIds}
                         />
                     </TabsContent>
 
@@ -297,6 +123,7 @@ export default function JobPostingPage({
                         <ArchiveTab
                             vacancies={vacancies}
                             search={filters?.search || ''}
+                            onSelectionChange={setSelectedVacancyIds}
                         />
                     </TabsContent>
                 </Tabs>
