@@ -9,11 +9,21 @@ class JobApplication extends Model
 {
     use HasFactory;
 
-    protected $table = 'applicant_profile_vacancy';
+   
 
-    public function applicant_profile()
+    protected $fillable = [
+        'applicant_profile_id',
+        'vacancy_id',
+        'applied_at',
+        'cover_letter',
+        'resume',
+        'access_code',
+        'status',
+    ];
+
+    public function applicantProfile()
     {
-        return $this->belongsTo( ApplicantProfile::class);
+        return $this->belongsTo(ApplicantProfile::class);
     }
 
     public function vacancy()
