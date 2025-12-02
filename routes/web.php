@@ -119,8 +119,10 @@ Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(f
 
 
 
-Route::get('/job-posting', [VacancyController::class, 'index'])->name('peso.job-posting');
-Route::get('/job-posting/export', [ExportController::class, 'exportVacancies']);
+    Route::get('/job-posting', [VacancyController::class, 'index'])->name('job-posting');
+    Route::get('/job-posting/export', [ExportController::class, 'exportVacancies']);
+    Route::post('/job-posting', [VacancyController::class, 'store'])->name('job-posting.store');
+
 
 
     Route::inertia('/companies', 'react/peso/companies/Index')
