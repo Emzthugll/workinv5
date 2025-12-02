@@ -8,53 +8,41 @@ use App\Models\Company;
 use App\Models\SubSpecialization;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class VacancyController extends Controller
 {
     public function index(Request $request)
     {
-        // Get query parameters
+        // Filters
         $page = $request->input('page', 1);
         $perPage = $request->input('per_page', 10);
         $search = $request->input('search', '');
-        $tab = $request->input('tab', 'active'); 
+        $tab = $request->input('tab', 'active');
 
-        // Build query
-        $query = Vacancy::query();
+        $query = Vacancy::query()
+            ->with(['company', 'subSpecialization'])
+            ->withCount('jobApplications');  
 
-        // Load relationships and count applications
-        if (method_exists(Vacancy::class, 'company')) {
-            $query->with('company');
-        }
-        if (method_exists(Vacancy::class, 'subSpecialization')) {
-            $query->with('subSpecialization');
-        }
-        
-        // Count applications if relationship exists
-        if (method_exists(Vacancy::class, 'jobApplications')) {
-            $query->withCount('jobApplications');
-        }
-
-        // Filter by tab (active or archived)
+        // Archive filter
         if ($tab === 'archive') {
-            $query->onlyTrashed(); 
+            $query->onlyTrashed();
         }
 
-        // Apply search filter
+        // Search
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%")
-                  ->orWhere('job_type', 'like', "%{$search}%");
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhere('job_type', 'like', "%{$search}%");
             });
         }
 
-        // Get paginated results
-        $vacancies = $query->orderBy('created_at', 'desc')
-                           ->paginate($perPage);
+        // Paginate
+        $vacancies = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        // Transform data for frontend
-        $data = $vacancies->map(function ($vacancy) {
+        //  transform only the collection inside the paginator
+        $vacancies->getCollection()->transform(function ($vacancy) {
             return [
                 'id' => $vacancy->id,
                 'title' => $vacancy->title,
@@ -62,7 +50,7 @@ class VacancyController extends Controller
                 'totalApplicants' => $vacancy->job_applications_count ?? 0,
                 'jobType' => $vacancy->job_type,
                 'place' => $vacancy->location,
-                'salary' => $vacancy->salary_from && $vacancy->salary_to 
+                'salary' => $vacancy->salary_from && $vacancy->salary_to
                     ? "₱" . number_format($vacancy->salary_from) . " - ₱" . number_format($vacancy->salary_to)
                     : "₱" . number_format($vacancy->salary_from ?? 0),
                 'totalVacancy' => $vacancy->total_vacancy,
@@ -72,18 +60,12 @@ class VacancyController extends Controller
             ];
         });
 
-        // Additional data for forms
+        // Additional Data
         $companies = Company::orderBy('name')->get();
         $subspecializations = SubSpecialization::all();
 
         return Inertia::render('react/peso/job-posting/JobPosting', [
-            'vacancies' => [
-                'data' => $data,
-                'total' => $vacancies->total(),
-                'per_page' => $vacancies->perPage(),
-                'current_page' => $vacancies->currentPage(),
-                'last_page' => $vacancies->lastPage(),
-            ],
+            'vacancies' => $vacancies, 
             'companies' => $companies,
             'subspecializations' => $subspecializations,
             'filters' => [
@@ -91,5 +73,30 @@ class VacancyController extends Controller
                 'tab' => $tab,
             ],
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|exists:companies,id',
+            'title' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'sub_specialization_id' => 'required|exists:sub_specializations,id',
+            'salary_from' => 'nullable|numeric',
+            'salary_to' => 'nullable|numeric',
+            'total_vacancy' => 'required|integer|min:1',
+            'job_type' => 'required|string',
+            'details' => 'nullable|string',
+        ]);
+
+        Log::info('Before creating vacancy');
+        
+        $vacancy = Vacancy::create($request->all());
+        
+        Log::info('After creating vacancy. ID: ' . $vacancy->id);
+        Log::info('Applicant count: ' . $vacancy->jobApplications()->count());
+
+        return redirect()->route('peso.job-posting')
+            ->with('success', 'Vacancy created successfully!');
     }
 }
