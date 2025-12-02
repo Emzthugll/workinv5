@@ -1,48 +1,31 @@
 <?php
 
-namespace App\Http\Controllers\react\peso\job;
+namespace App\Exports;
 
-use App\Exports\GenericExport;
-use App\Http\Controllers\Controller;
-use App\Models\Vacancy;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class ExportController extends Controller
+class ArrayExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths
 {
-    public function exportVacancies(Request $request)
+    protected $data;
+
+    public function __construct(array $data)
     {
-        $tab = $request->tab ?? 'active';
-        $search = $request->search ?? '';
-        $selected = $request->selected ?? [];
+        $this->data = $data;
+    }
 
-        // Fetch vacancies
-        $vacancies = Vacancy::with('company', 'jobApplications')
-            ->when($tab === 'active', fn($q) => $q->whereNull('deleted_at'))
-            ->when($tab === 'archive', fn($q) => $q->onlyTrashed())
-            ->when($search, fn($q) =>
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhereHas('company', fn($q2) =>
-                      $q2->where('name', 'like', "%{$search}%")
-                  )
-            )
-            ->when(!empty($selected), fn($q) => $q->whereIn('id', $selected))
-            ->get();
+    public function array(): array
+    {
+        return $this->data;
+    }
 
-        // Map data
-        $exportData = $vacancies->map(fn($v) => [
-            $v->title,
-            $v->company->name ?? '',
-            $v->jobApplications->count(),
-            $v->job_type,
-            $v->location,
-            $v->salary_from . ' - ' . $v->salary_to,
-            $v->total_vacancy,
-            $v->created_at->format('F j, Y'),
-        ])->toArray();
-
-        // Define headings
-        $headings = [
+    public function headings(): array
+    {
+        return [
             'Title',
             'Company',
             'Total Applicant',
@@ -52,83 +35,63 @@ class ExportController extends Controller
             'Total Vacancy',
             'Date Posted',
         ];
-
-        // Define column widths
-        $columnWidths = [
-            'A' => 30, 'B' => 25, 'C' => 18, 'D' => 15,
-            'E' => 30, 'F' => 20, 'G' => 18, 'H' => 20,
-        ];
-
-        // Define columns to center
-        $centerColumns = ['C', 'G'];
-
-        $selectedText = !empty($selected) ? '_selected_' . count($selected) : '';
-        $filename = "vacancies_{$tab}{$selectedText}_" . date('Y-m-d') . '.xlsx';
-
-        return Excel::download(
-            new GenericExport($exportData, $headings, $columnWidths, $centerColumns),
-            $filename
-        );
     }
 
-    public function exportCompanies(Request $request)
+    public function styles(Worksheet $sheet)
     {
-        $search = $request->search ?? '';
-        $selected = $request->selected ?? [];
+        // Get the last row number
+        $lastRow = count($this->data) + 1;
 
-        // Fetch companies (adjust according to your Company model)
-        $companies = \App\Models\Company::query()
-            ->when($search, fn($q) =>
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('industry', 'like', "%{$search}%")
-            )
-            ->when(!empty($selected), fn($q) => $q->whereIn('id', $selected))
-            ->get();
+        // Style the header row
+        $sheet->getStyle('A1:H1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => '084896'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
 
-        // Map data
-        $exportData = $companies->map(fn($c) => [
-            $c->name,
-            $c->industry,
-            $c->email,
-            $c->phone,
-            $c->address,
-            $c->created_at->format('F j, Y'),
-        ])->toArray();
+        // Style all data rows
+        $sheet->getStyle('A2:H' . $lastRow)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'wrapText' => true, // Enable text wrapping
+            ],
+        ]);
 
-        // Define headings
-        $headings = [
-            'Company Name',
-            'Industry',
-            'Email',
-            'Phone',
-            'Address',
-            'Date Registered',
-        ];
+        // Center align specific columns (Total Applicant, Total Vacancy)
+        $sheet->getStyle('C2:C' . $lastRow)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
 
-        // Define column widths
-        $columnWidths = [
-            'A' => 30, 'B' => 20, 'C' => 25,
-            'D' => 18, 'E' => 35, 'F' => 20,
-        ];
+        $sheet->getStyle('G2:G' . $lastRow)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
 
-        // Define columns to center (none for companies)
-        $centerColumns = [];
-
-        $selectedText = !empty($selected) ? '_selected_' . count($selected) : '';
-        $filename = "companies{$selectedText}_" . date('Y-m-d') . '.xlsx';
-
-        return Excel::download(
-            new GenericExport($exportData, $headings, $columnWidths, $centerColumns),
-            $filename
-        );
+        return [];
     }
 
-    public function exportRecruitmentActivities(Request $request)
+    public function columnWidths(): array
     {
-        // Similar pattern for recruitment activities
-        $search = $request->search ?? '';
-        $selected = $request->selected ?? [];
-
-        // Your recruitment activities export logic here...
+        return [
+            'A' => 30,  // Title
+            'B' => 25,  // Company
+            'C' => 18,  // Total Applicant
+            'D' => 15,  // Job Type
+            'E' => 30,  // Place of Assignment
+            'F' => 20,  // Salary
+            'G' => 18,  // Total Vacancy
+            'H' => 20,  // Date Posted
+        ];
     }
 }
