@@ -147,54 +147,7 @@ export default function DeleteVacancyModal({
                     </div>
                 )}
 
-                {/* Vacancy Details */}
-                <div className="space-y-3 py-4">
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">
-                            Job Title
-                        </label>
-                        <p className="mt-1 font-semibold text-gray-900">
-                            {displayVacancy.title}
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">
-                                Company
-                            </label>
-                            <p className="mt-1 text-sm text-gray-900">
-                                {displayVacancy.company}
-                            </p>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">
-                                Location
-                            </label>
-                            <p className="mt-1 text-sm text-gray-900">
-                                {displayVacancy.place}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">
-                                Job Type
-                            </label>
-                            <p className="mt-1 text-sm text-gray-900">
-                                {displayVacancy.jobType}
-                            </p>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">
-                                Total Applicants
-                            </label>
-                            <p className="mt-1 text-sm font-semibold text-gray-900">
-                                {displayVacancy.totalApplicants}
-                            </p>
-                        </div>
-                    </div>
+               
 
                     {/* Warning Message */}
                     <div
@@ -212,11 +165,11 @@ export default function DeleteVacancyModal({
                             }`}
                         >
                             {displayVacancy.totalApplicants > 0
-                                ? `⚠️ This vacancy has ${displayVacancy.totalApplicants} applicant(s). It will be moved to archive.`
-                                : '⚠️ This will permanently delete this vacancy. This cannot be undone.'}
+                                ? `This vacancy has ${displayVacancy.totalApplicants} applicant(s). It will be moved to archive.`
+                                : 'This will permanently delete this vacancy. This cannot be undone.'}
                         </p>
                     </div>
-                </div>
+                
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
