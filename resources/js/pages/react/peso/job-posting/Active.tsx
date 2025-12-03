@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import VacancyTable from '@/components/react/peso/components/job-posting/VacancyTable';
 import Pagination from '@/components/Pagination';
+import VacancyTable from '@/components/react/peso/components/job-posting/VacancyTable';
 import { usePagination } from '@/hooks/usePagination';
+import { useState } from 'react';
 
 interface VacancyData {
     id: number;
@@ -15,21 +15,40 @@ interface VacancyData {
     salary: string;
     totalVacancy: number;
     datePosted: string;
+    details?: string;
+    subSpecializationId?: number;
+    salary_from?: number;
+    salary_to?: number;
+    company_id?: number;
+}
+
+interface Company {
+    id: number;
+    name: string;
+}
+
+interface SubSpecialization {
+    id: number;
+    name: string;
+}
+
+interface VacancyResponse {
+    data: VacancyData[];
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
 }
 
 interface ActiveTabProps {
-    vacancies?: {
-        data: VacancyData[];
-        total: number;
-        per_page: number;
-        current_page: number;
-        last_page: number;
-    };
+    vacancies?: VacancyResponse;
+    companies: Company[];
+    subspecializations: SubSpecialization[];
     search?: string;
     onSelectionChange?: (selectedIds: number[]) => void;
 }
 
-const defaultVacancies = {
+const defaultVacancies: VacancyResponse = {
     data: [],
     total: 0,
     per_page: 10,
@@ -39,19 +58,22 @@ const defaultVacancies = {
 
 export default function ActiveTab({
     vacancies,
+    companies,
+    subspecializations,
     search = '',
     onSelectionChange,
 }: ActiveTabProps) {
     const vacancyData = vacancies || defaultVacancies;
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
-    const { page, rowsPerPage, navigateToPage, changeRowsPerPage } = usePagination({
-        initialPage: vacancyData.current_page,
-        initialPerPage: vacancyData.per_page,
-        initialSearch: search,
-        tab: 'active',
-        route: '/peso/job-posting',
-    });
+    const { page, rowsPerPage, navigateToPage, changeRowsPerPage } =
+        usePagination({
+            initialPage: vacancyData.current_page,
+            initialPerPage: vacancyData.per_page,
+            initialSearch: search,
+            tab: 'active',
+            route: '/peso/job-posting',
+        });
 
     const handleSelectionChange = (newSelection: number[]) => {
         setSelectedRows(newSelection);
@@ -67,6 +89,10 @@ export default function ActiveTab({
                 data={vacancyData.data}
                 selectedRows={selectedRows}
                 onSelectionChange={handleSelectionChange}
+                onView={(id) => console.log('View:', id)}
+                onDelete={(id) => console.log('Delete:', id)}
+                companies={companies}
+                subspecializations={subspecializations}
             />
 
             <Pagination
