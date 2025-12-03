@@ -108,30 +108,28 @@ Route::middleware(['auth', 'role:employer'])->group(function () {
 // -----------------------------
 // Peso Dashboard
 // -----------------------------
-Route::middleware(['auth', 'role:peso'])->prefix('peso')->name('peso.')->group(function () {
+Route::middleware(['auth', 'role:peso'])->prefix('peso')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+        ->name('peso.dashboard');
     Route::get('/dashboard/daily-logins', [DashboardController::class, 'getDailyLogins']);
     Route::get('/dashboard/daily-accounts', [DashboardUserController::class, 'getDailyAccounts']);
     Route::get('/dashboard/daily-vacancies', [DashboardJobController::class, 'getDailyVacancies']);
   
-
-
-
-    Route::get('/job-posting', [VacancyController::class, 'index'])->name('job-posting');
-    Route::get('/job-posting/export', [ExportController::class, 'exportVacancies']);
-    Route::post('/job-posting', [VacancyController::class, 'store'])->name('job-posting.store');
-
-
+    // Job Posting Routes - DELETE without {id} parameter (uses query parameter instead)
+    Route::delete('/job-posting', [VacancyController::class, 'destroy'])->name('peso.job-posting.destroy');
+    Route::put('/job-posting/{id}', [VacancyController::class, 'update'])->name('peso.job-posting.update');
+    
+    Route::get('/job-posting/export', [ExportController::class, 'exportVacancies'])->name('peso.job-posting.export');
+    
+    Route::get('/job-posting', [VacancyController::class, 'index'])->name('peso.job-posting');
+    Route::post('/job-posting', [VacancyController::class, 'store'])->name('peso.job-posting.store');
 
     Route::inertia('/companies', 'react/peso/companies/Index')
         ->name('companies.index');
-    //Route::get('/peso/companies/export', [ExportController::class, 'exportCompanies']);
 
     Route::inertia('/recruitment-activity', 'react/peso/recruitment/Index')
         ->name('recruitment.index');
-   // Route::get('/peso/recruitment-activities/export', [ExportController::class, 'exportRecruitmentActivities']);
 
     Route::inertia('/mat-report', 'react/peso/mat/Index')
         ->name('mat.index');
