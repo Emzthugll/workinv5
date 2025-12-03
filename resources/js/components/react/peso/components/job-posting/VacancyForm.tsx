@@ -28,18 +28,17 @@ interface VacancyFormData {
 interface VacancyFormProps {
     value: VacancyFormData;
     onChange: (key: string, value: string) => void;
-    companies: Company[];
-    subspecializations: SubSpecialization[];
+    companies?: Company[];
+    subspecializations?: SubSpecialization[];
     errors?: Record<string, string>;
-    isEdit?: boolean; 
+    isEdit?: boolean;
 }
-
 
 export default function VacancyForm({
     value,
     onChange,
-    companies,
-    subspecializations,
+    companies = [],
+    subspecializations = [],
     errors = {},
 }: VacancyFormProps) {
     return (
@@ -53,11 +52,12 @@ export default function VacancyForm({
                     className="w-full rounded border p-2"
                 >
                     <option value="">Select company</option>
-                    {companies.map((c) => (
-                        <option key={c.id} value={c.id}>
-                            {c.name}
-                        </option>
-                    ))}
+                    {companies &&
+                        companies.map((c) => (
+                            <option key={c.id} value={c.id}>
+                                {c.name}
+                            </option>
+                        ))}
                 </select>
                 {errors.company_id && (
                     <p className="text-sm text-red-500">{errors.company_id}</p>
@@ -99,11 +99,12 @@ export default function VacancyForm({
                     className="w-full rounded border p-2"
                 >
                     <option value="">Select category</option>
-                    {subspecializations.map((s) => (
-                        <option key={s.id} value={s.id}>
-                            {s.name}
-                        </option>
-                    ))}
+                    {subspecializations &&
+                        subspecializations.map((s) => (
+                            <option key={s.id} value={s.id}>
+                                {s.name}
+                            </option>
+                        ))}
                 </select>
                 {errors.sub_specialization_id && (
                     <p className="text-sm text-red-500">
