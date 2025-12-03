@@ -2,7 +2,7 @@
 
 import ExportButton from '@/components/ExportButton';
 import Heading from '@/components/heading';
-import CreateVacancySheet from '@/components/react/peso/components/job-posting/CreateVacancySheet';
+import CreateVacancySheet from '@/components/react/peso/components/job-posting/action/CreateVacancySheet';
 import SearchInput from '@/components/react/peso/components/job-posting/SearchInput';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -145,8 +145,9 @@ export default function JobPostingPage({
                     <TabsContent value="Active">
                         <ActiveTab
                             vacancies={vacancies}
+                            companies={companies} 
+                            subspecializations={subspecializations} 
                             search={filters.search || ''}
-                            onSelectionChange={setSelectedVacancyIds}
                         />
                     </TabsContent>
 
